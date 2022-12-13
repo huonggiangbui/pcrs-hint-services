@@ -7,7 +7,7 @@ import {
   Resolver,
   Root,
 } from '@nestjs/graphql';
-import { Hint } from './hint.entity';
+import { Hint } from '../entity/hint.entity';
 
 @Resolver(() => Hint)
 export class HintResolver {

@@ -2,16 +2,12 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-  OneToMany,
-  ManyToOne,
-  ManyToMany,
-  JoinTable,
   OneToOne,
+  JoinColumn,
 } from 'typeorm';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { IHint, HintType, ISubmission } from 'src/types';
-import { Submission } from 'src/submission/submission.entity';
-// import { Metadata } from '../utils/metadata.type';
+import { IHint, HintType, ISubmission } from '../types';
+import { Submission } from './submission.entity';
 
 @Entity()
 @ObjectType()
@@ -20,9 +16,14 @@ export class Hint implements IHint {
   @Field(() => ID)
   id: string;
 
-  @Column(() => String)
+  @Column({
+    type: 'enum',
+    enum: HintType,
+    default: HintType.AUTOMATIC,
+  })
   type: HintType;
 
   @OneToOne(() => Submission, (s) => s.hint)
+  @JoinColumn()
   submission: ISubmission;
 }

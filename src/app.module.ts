@@ -4,9 +4,8 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { configuration } from './config/configuration';
-import { HintModule } from './hint/hint.module';
 import { join } from 'path';
-import { SubmissionModule } from './submission/submission.module';
+import { HintResolver } from './resolver/hint.resolver';
 
 @Module({
   imports: [
@@ -14,8 +13,7 @@ import { SubmissionModule } from './submission/submission.module';
       load: [configuration],
       envFilePath: '.env',
     }),
-    HintModule,
-    SubmissionModule,
+    HintResolver,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       path: 'api/gql',

@@ -1,6 +1,6 @@
 export enum HintType {
-  'automatic',
-  'static',
+  AUTOMATIC,
+  STATIC,
 }
 
 export interface IHint {
