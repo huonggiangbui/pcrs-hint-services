@@ -1,25 +1,15 @@
 import { Module } from '@nestjs/common';
-import { GraphQLModule } from '@nestjs/graphql';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { configuration } from './config/configuration';
-import { join } from 'path';
-import { HintResolver } from './resolver/hint.resolver';
+import { HintController } from './controller/hint.controller';
+import { HintService } from './service/hint.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       load: [configuration],
       envFilePath: '.env',
-    }),
-    HintResolver,
-    GraphQLModule.forRoot<ApolloDriverConfig>({
-      driver: ApolloDriver,
-      path: 'api/gql',
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-      sortSchema: true,
-      context: ({ req }) => ({ request: req, req }),
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -34,5 +24,7 @@ import { HintResolver } from './resolver/hint.resolver';
       ssl: process.env.DB_SSL === 'true' && { rejectUnauthorized: false },
     }),
   ],
+  providers: [HintService],
+  controllers: [HintController],
 })
 export class AppModule {}

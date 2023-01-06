@@ -21,6 +21,7 @@ export class Hint implements IHint {
     enum: HintType,
     default: HintType.AUTOMATIC,
   })
+  @Field()
   type: HintType;
 
   @OneToOne(() => Submission, (s) => s.hint)

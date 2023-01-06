@@ -11,9 +11,11 @@ export class Problem implements IProblem {
   id: string;
 
   @Column()
+  @Field()
   name: string;
 
   @Column()
+  @Field()
   description: string;
 
   @Column()

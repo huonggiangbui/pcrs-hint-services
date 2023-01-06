@@ -7,21 +7,28 @@ import {
   Resolver,
   Root,
 } from '@nestjs/graphql';
+import { HintService } from 'src/service/hint.service';
+import { HintType } from 'src/types';
 import { Hint } from '../entity/hint.entity';
 
 @Resolver(() => Hint)
 export class HintResolver {
-  // constructor(
-  //   private classService: KlassService,
-  //   private assignmentService: AssignmentService
-  // ) { }
-  @Query(() => String)
-  hello(): string {
-    return 'Hi';
+  constructor(private readonly hintService: HintService) {}
+
+  @Query(() => Hint)
+  async getStaticHint(): Promise<Hint> {
+    return this.hintService.findOne({
+      where: { type: HintType.STATIC },
+    });
   }
 
-  @Query(() => Hint, { nullable: true })
-  getHint(): Hint {
+  @Mutation(() => Boolean)
+  async saveStaticHint(): Promise<boolean> {
+    return true;
+  }
+
+  @Mutation(() => Hint)
+  async generateAutomaticHint(): Promise<Hint> {
     return null;
   }
 }
