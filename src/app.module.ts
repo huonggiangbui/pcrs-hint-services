@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { configuration } from './config/configuration';
 import { HintController } from './controller/hint.controller';
 import { HintService } from './service/hint.service';
+import { ProblemController } from './controller/problem.controller';
 
 @Module({
   imports: [
@@ -25,6 +26,6 @@ import { HintService } from './service/hint.service';
     }),
   ],
   providers: [HintService],
-  controllers: [HintController],
+  controllers: [HintController, ProblemController],
 })
 export class AppModule {}
