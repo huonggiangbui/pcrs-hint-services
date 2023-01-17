@@ -20,7 +20,6 @@ export class HintController {
     console.log(query);
     return {
       btnText: 'Get hint',
-      limit: 1,
     };
   }
 
@@ -50,5 +49,12 @@ export class HintController {
       message: 'Feedback received',
       showTextFeedback: true,
     };
+  }
+
+  @Post('logging/:language/:id')
+  async logActivity(@Param() params, @Body() body): Promise<unknown> {
+    const timestamp = new Date();
+    console.log(`${timestamp.toISOString()} | ${body.action} ${params.id}`);
+    return {};
   }
 }
