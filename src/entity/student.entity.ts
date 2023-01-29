@@ -1,11 +1,20 @@
-import { Entity, PrimaryColumn, Column, OneToMany, ManyToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  OneToMany,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { IStudent } from '../types';
 import { Hint } from './hint.entity';
 import { Problem } from './problem.entity';
 
 @Entity()
 export class Student implements IStudent {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
   uid: string;
 
   @Column()

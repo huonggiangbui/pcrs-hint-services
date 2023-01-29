@@ -11,7 +11,6 @@ import { Hint } from './hint.entity';
 import { Student } from './student.entity';
 
 @Entity()
-@Index(['id', 'language'], { unique: true })
 export class Problem implements IProblem {
   @PrimaryGeneratedColumn()
   id: number;
