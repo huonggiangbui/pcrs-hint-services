@@ -2,29 +2,45 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-  OneToOne,
-  JoinColumn,
+  ManyToOne,
+  OneToMany,
 } from 'typeorm';
-import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { IHint, HintType, ISubmission } from '../types';
-import { Submission } from './submission.entity';
+import { IHint, HintType } from '../types';
+import { UIConfig } from './Config';
+import { Student } from './Student';
+import { Problem } from './problem.entity';
+import { Logger } from './logger.entity';
 
 @Entity()
-@ObjectType()
 export class Hint implements IHint {
   @PrimaryGeneratedColumn()
-  @Field(() => ID)
-  id: string;
+  id: number;
+
+  @Column(() => Student)
+  student: Student;
 
   @Column({
     type: 'enum',
     enum: HintType,
-    default: HintType.AUTOMATIC,
+    default: HintType.TEXT,
   })
-  @Field()
   type: HintType;
 
-  @OneToOne(() => Submission, (s) => s.hint)
-  @JoinColumn()
-  submission: ISubmission;
+  @Column()
+  hint: string;
+
+  @Column()
+  submission: string;
+
+  @Column()
+  feedback?: string;
+
+  @Column(() => UIConfig)
+  config: UIConfig;
+
+  @ManyToOne(() => Problem, (p) => p.hints, { onDelete: 'CASCADE', lazy: true })
+  problem: Problem;
+
+  @OneToMany(() => Logger, (l) => l.hint)
+  logs: Logger[];
 }

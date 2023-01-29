@@ -1,21 +1,30 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
-import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { IProblem, ISubmission } from 'src/types';
-import { Submission } from './submission.entity';
+import {
+  Entity,
+  Index,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToMany,
+} from 'typeorm';
+import { IProblem, LanguageType } from 'src/types';
+import { Hint } from './hint.entity';
 
 @Entity()
-@ObjectType()
+@Index(['id', 'language'], { unique: true })
 export class Problem implements IProblem {
   @PrimaryGeneratedColumn()
-  @Field(() => ID)
-  id: string;
+  id: number;
+
+  @Column({
+    type: 'enum',
+    enum: LanguageType,
+    default: LanguageType.SQL,
+  })
+  language: LanguageType;
 
   @Column()
-  @Field()
   name: string;
 
   @Column()
-  @Field()
   description: string;
 
   @Column()
@@ -24,6 +33,6 @@ export class Problem implements IProblem {
   @Column()
   starter_code?: string;
 
-  @OneToMany(() => Submission, (s) => s.problem)
-  submissions: ISubmission[];
+  @OneToMany(() => Hint, (h) => h.problem)
+  hints: Hint[];
 }

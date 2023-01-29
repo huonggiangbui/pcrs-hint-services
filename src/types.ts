@@ -1,29 +1,54 @@
-export enum HintType {
-  AUTOMATIC,
-  STATIC,
+export interface IHint {
+  id: number;
+  student: IStudent;
+  type: HintType;
+  hint: string;
+  submission: string;
+  feedback?: string;
+  config: IUIConfig;
 }
 
-export interface IHint {
-  id: string;
-  type: HintType;
-  submission: ISubmission;
+export enum HintType {
+  TEXT = 'text',
+  CODE = 'code',
+}
+
+export interface IStudent {
+  uid: string;
+  condition: string;
+  btnText?: string;
+}
+
+export interface IUIConfig {
+  title?: string;
+  description?: string;
+  level?: number;
+  more?: boolean;
+  feedback?: boolean;
 }
 
 export interface IProblem {
-  id: string;
+  id: number;
   name: string;
+  language: LanguageType;
   description: string;
   solution?: string;
   starter_code?: string;
 }
 
-export interface ISubmission {
-  id: string;
-  problem: IProblem;
-  student: IStudent;
+export enum LanguageType {
+  SQL = 'sql',
 }
 
-export interface IStudent {
-  id: string;
-  utorId: string;
+export interface ILogger {
+  id: number;
+  timestamp: Date;
+  action: ActionType;
+}
+
+export enum ActionType {
+  REQUEST = 'request',
+  FOLLOW = 'follow-up',
+  CLOSE = 'close',
+  EXPAND = 'expand',
 }

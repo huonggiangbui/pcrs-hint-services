@@ -17,6 +17,7 @@ export class ProblemController {
 
   @Post('problems/:language')
   async createProblem(@Param() params, @Body() body): Promise<unknown> {
+    // throw new Error();
     // NOTE: need name, description, starter_code, solution in body
     console.log(body);
     return {};
