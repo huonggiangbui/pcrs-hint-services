@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 import { IHint, HintType } from '../types';
 import { UIConfig } from './Config';
-import { Student } from './Student';
+import { Student } from './student.entity';
 import { Problem } from './problem.entity';
 import { Logger } from './logger.entity';
 
@@ -16,7 +16,7 @@ export class Hint implements IHint {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column(() => Student)
+  @ManyToOne(() => Student, (s) => s.hints, { onDelete: 'CASCADE', lazy: true })
   student: Student;
 
   @Column({

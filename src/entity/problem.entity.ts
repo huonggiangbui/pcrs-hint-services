@@ -4,9 +4,11 @@ import {
   Column,
   PrimaryGeneratedColumn,
   OneToMany,
+  ManyToMany,
 } from 'typeorm';
 import { IProblem, LanguageType } from 'src/types';
 import { Hint } from './hint.entity';
+import { Student } from './student.entity';
 
 @Entity()
 @Index(['id', 'language'], { unique: true })
@@ -35,4 +37,7 @@ export class Problem implements IProblem {
 
   @OneToMany(() => Hint, (h) => h.problem)
   hints: Hint[];
+
+  @ManyToMany(() => Student, (s) => s.problems)
+  students: Student[];
 }

@@ -1,6 +1,5 @@
 export interface IHint {
   id: number;
-  student: IStudent;
   type: HintType;
   hint: string;
   submission: string;

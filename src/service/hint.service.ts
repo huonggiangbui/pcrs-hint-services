@@ -6,17 +6,13 @@ import { HintType } from '../types';
 
 @Injectable()
 export class HintService {
-  // constructor(
-  //   @InjectRepository(Hint)
-  //   private hintRepository: Repository<Hint>,
-  // ) {}
+  constructor(
+    @InjectRepository(Hint)
+    private hintRepository: Repository<Hint>,
+  ) {}
 
-  findOne(options: FindOneOptions<Hint>): Promise<Hint> {
+  findOne(options: FindOneOptions<Hint>): Promise<unknown> {
     // return this.hintRepository.findOne(options);
-    return Promise.resolve({
-      id: '1',
-      type: HintType.STATIC,
-      submission: null,
-    });
+    return;
   }
 }
