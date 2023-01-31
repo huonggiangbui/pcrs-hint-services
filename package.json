@@ -29,6 +29,7 @@
     "@nestjs/typeorm": "^9.0.1",
     "apollo-server-express": "^3.11.1",
     "joi": "^17.7.0",
+    "openai": "^3.1.0",
     "pg": "^8.8.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
