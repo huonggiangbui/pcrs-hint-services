@@ -9,6 +9,7 @@ import { Hint } from './entity/hint.entity';
 import { Problem } from './entity/problem.entity';
 import { Student } from './entity/student.entity';
 import { Logger } from './entity/logger.entity';
+import { ProblemService } from './service/problem.service';
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { Logger } from './entity/logger.entity';
     }),
     TypeOrmModule.forFeature([Hint, Problem, Student, Logger]),
   ],
-  providers: [HintService],
+  providers: [HintService, ProblemService],
   controllers: [HintController, ProblemController],
 })
 export class AppModule {}
