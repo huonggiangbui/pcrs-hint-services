@@ -11,6 +11,7 @@ import { Student } from './entity/student.entity';
 import { Logger } from './entity/logger.entity';
 import { ProblemService } from './service/problem.service';
 import { StudentService } from './service/student.service';
+import { LoggingService } from './service/logging.service';
 
 @Module({
   imports: [
@@ -32,7 +33,7 @@ import { StudentService } from './service/student.service';
     }),
     TypeOrmModule.forFeature([Hint, Problem, Student, Logger]),
   ],
-  providers: [ProblemService, HintService, StudentService],
+  providers: [ProblemService, HintService, StudentService, LoggingService],
   controllers: [HintController, ProblemController],
 })
 export class AppModule {}

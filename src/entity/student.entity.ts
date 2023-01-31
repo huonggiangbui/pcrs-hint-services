@@ -3,19 +3,17 @@ import {
   Column,
   OneToMany,
   ManyToMany,
-  PrimaryGeneratedColumn,
   JoinTable,
+  PrimaryColumn,
 } from 'typeorm';
 import { ConditionType, IStudent } from '../types';
 import { Hint } from './hint.entity';
 import { Problem } from './problem.entity';
+import { Logger } from './logger.entity';
 
 @Entity()
 export class Student implements IStudent {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column({ unique: true })
+  @PrimaryColumn()
   uid: string;
 
   @Column({
@@ -34,4 +32,7 @@ export class Student implements IStudent {
   @ManyToMany(() => Problem, (p) => p.students, { onDelete: 'SET NULL' })
   @JoinTable()
   problems: Problem[];
+
+  @OneToMany(() => Logger, (p) => p.student)
+  logs: Logger[];
 }

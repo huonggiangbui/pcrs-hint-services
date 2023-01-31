@@ -32,7 +32,7 @@ export class Hint implements IHint {
   @Column()
   submission: string;
 
-  @Column()
+  @Column({ nullable: true })
   feedback?: string;
 
   @Column(() => UIConfig)
