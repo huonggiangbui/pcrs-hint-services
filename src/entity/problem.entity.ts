@@ -11,9 +11,13 @@ import { Hint } from './hint.entity';
 import { Student } from './student.entity';
 
 @Entity()
+@Index(['pk', 'language'], { unique: true })
 export class Problem implements IProblem {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column()
+  pk: string;
 
   @Column({
     type: 'enum',

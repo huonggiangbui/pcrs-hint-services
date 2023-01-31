@@ -28,6 +28,7 @@ export interface IUIConfig {
 
 export interface IProblem {
   id: number;
+  pk: string;
   name: string;
   language: LanguageType;
   description: string;
