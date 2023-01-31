@@ -9,18 +9,18 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { Problem } from 'src/entity/problem.entity';
-import { ProblemService } from 'src/service/problem.service';
+// import { HintService } from 'src/service/hint.service';
 
 @Controller()
 export class ProblemController {
-  constructor(private readonly problemService: ProblemService) { }
+  // constructor(private readonly hintService: HintService) { }
 
   @Post('problems/:language')
-  async createProblem(@Param() params, @Body() body): Promise<void> {
+  async createProblem(@Param() params, @Body() body): Promise<unknown> {
     // throw new Error();
     // NOTE: need name, description, starter_code, solution in body
-    return this.problemService.createProblem(params, body)
+    console.log(body);
+    return {};
   }
 
   @Put('problems/:language/:id')
