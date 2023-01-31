@@ -5,6 +5,7 @@ import {
   PrimaryGeneratedColumn,
   OneToMany,
   ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { IProblem, LanguageType } from 'src/types';
 import { Hint } from './hint.entity';
@@ -32,15 +33,16 @@ export class Problem implements IProblem {
   @Column()
   description: string;
 
-  @Column()
+  @Column({ nullable: true })
   solution?: string;
 
-  @Column()
+  @Column({ nullable: true })
   starter_code?: string;
 
   @OneToMany(() => Hint, (h) => h.problem)
   hints: Hint[];
 
-  @ManyToMany(() => Student, (s) => s.problems)
+  @ManyToMany(() => Student, (s) => s.problems, { onDelete: 'SET NULL' })
+  @JoinTable()
   students: Student[];
 }

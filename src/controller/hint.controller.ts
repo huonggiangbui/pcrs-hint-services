@@ -1,38 +1,41 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Query,
-  Get,
-  Param,
-  Post,
-  Put,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Query, Get, Param, Post } from '@nestjs/common';
 import { HintService } from 'src/service/hint.service';
+import { ProblemService } from 'src/service/problem.service';
+import { StudentService } from 'src/service/student.service';
+import { LanguageType } from 'src/types';
 
 @Controller()
 export class HintController {
-  constructor(private readonly hintService: HintService) {}
+  constructor(
+    private readonly hintService: HintService,
+    private readonly problemService: ProblemService,
+    private readonly studentService: StudentService,
+  ) {}
 
-  @Get('config/:language/:id')
-  async getConfig(@Param() params, @Query() query): Promise<unknown> {
-    // search for problem with id and language
-    // if not found, return error
-
-    // else, found user associated with problem x language
-    // if found, return config
-
-    // else, randomize condition -> hint text -> hint type
-    console.log(query);
-    // return {};
-    // throw new Error();
-    return {
-      btnText: 'Get hint',
-    };
+  @Get('config/:language/:pk')
+  async getConfig(
+    @Param() params: { language: LanguageType; pk: string },
+    @Query() query: { uid: string },
+  ): Promise<unknown> {
+    let student = await this.studentService.findByUid(query.uid);
+    if (!student) {
+      const problem = await this.problemService.findByPk(
+        params.pk,
+        params.language,
+      );
+      const { condition, btnText } =
+        await this.studentService.handleExperiment();
+      student = await this.studentService.create({
+        problem,
+        uid: query.uid,
+        condition,
+        btnText,
+      });
+    }
+    return { condition: student.condition, btnText: student.btnText };
   }
 
-  @Post('hints/:language/:id')
+  @Post('hints/:language/:pk') // problem id
   async getHint(@Param() params, @Body() body): Promise<unknown> {
     console.log(body);
     // throw new Error();
@@ -51,7 +54,7 @@ export class HintController {
     };
   }
 
-  @Post('feedback/:language/:id')
+  @Post('feedback/:language/:id') // hint id
   async sendFeedback(@Param() params, @Body() body): Promise<unknown> {
     console.log(body);
     // throw new Error();
@@ -61,7 +64,7 @@ export class HintController {
     };
   }
 
-  @Post('logging/:language/:id')
+  @Post('logging/:language/:id') // hint id
   async logActivity(@Param() params, @Body() body): Promise<unknown> {
     // throw new Error();
     const timestamp = new Date();

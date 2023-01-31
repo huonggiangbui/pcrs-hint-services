@@ -2,18 +2,18 @@ import { Column } from 'typeorm';
 import { IUIConfig } from '../types';
 
 export class UIConfig implements IUIConfig {
-  @Column()
+  @Column({ nullable: true })
   title?: string;
 
-  @Column()
+  @Column({ nullable: true })
   description?: string;
 
-  @Column()
+  @Column({ nullable: true })
   level?: number;
 
-  @Column()
+  @Column({ nullable: true })
   more?: boolean;
 
-  @Column()
+  @Column({ nullable: true })
   feedback?: boolean;
 }

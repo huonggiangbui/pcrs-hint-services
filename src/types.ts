@@ -14,8 +14,13 @@ export enum HintType {
 
 export interface IStudent {
   uid: string;
-  condition: string;
+  condition: ConditionType;
   btnText?: string;
+}
+
+export enum ConditionType {
+  CONTROL = 'control',
+  EXPERIMENT = 'experiment',
 }
 
 export interface IUIConfig {
