@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { HintButtonText } from 'src/constants';
+import { HINT_BUTTON_TEXT } from 'src/constants';
 import { Problem } from 'src/entity/problem.entity';
 import { Student } from 'src/entity/student.entity';
-import { ConditionType } from 'src/types';
+import { ConditionType, HintType } from 'src/types';
+import { NullDeciderType, randomize } from 'src/utils/randomize';
 import { Repository } from 'typeorm';
 
 type CreateStudentData = {
@@ -36,18 +37,11 @@ export class StudentService {
     condition: ConditionType;
     btnText?: string;
   }> {
-    const randomizedCondition = Math.floor(Math.random() * 2);
-    const condition =
-      randomizedCondition === 0
-        ? ConditionType.CONTROL
-        : ConditionType.EXPERIMENT;
-    const randomizedHintButton = Math.floor(
-      Math.random() * (HintButtonText.length + 1),
-    ); // randomized between all hint button text + no text
-    const btnText =
-      randomizedHintButton === HintButtonText.length
-        ? null
-        : HintButtonText[randomizedHintButton];
+    const condition = randomize(
+      [ConditionType.CONTROL, ConditionType.EXPERIMENT],
+      NullDeciderType.NO_NULL,
+    );
+    const btnText = randomize(HINT_BUTTON_TEXT, NullDeciderType.ALLOW_NULL);
     return { condition, btnText };
   }
 }

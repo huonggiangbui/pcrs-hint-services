@@ -26,9 +26,14 @@ export enum ConditionType {
 export interface IUIConfig {
   title?: string;
   description?: string;
-  level?: number;
+  level?: DetailLevelType;
   more?: boolean;
   feedback?: boolean;
+}
+
+export enum DetailLevelType {
+  BOTTOM_OUT = 1,
+  HIDDEN = 2,
 }
 
 export interface IProblem {

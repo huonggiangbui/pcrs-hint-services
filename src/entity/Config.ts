@@ -1,5 +1,5 @@
 import { Column } from 'typeorm';
-import { IUIConfig } from '../types';
+import { DetailLevelType, IUIConfig } from '../types';
 
 export class UIConfig implements IUIConfig {
   @Column({ nullable: true })
@@ -8,7 +8,12 @@ export class UIConfig implements IUIConfig {
   @Column({ nullable: true })
   description?: string;
 
-  @Column({ nullable: true })
+  @Column({
+    type: 'enum',
+    enum: DetailLevelType,
+    default: DetailLevelType.BOTTOM_OUT,
+    nullable: true,
+  })
   level?: number;
 
   @Column({ nullable: true })

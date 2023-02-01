@@ -12,12 +12,15 @@ import { Logger } from './entity/logger.entity';
 import { ProblemService } from './service/problem.service';
 import { StudentService } from './service/student.service';
 import { LoggingService } from './service/logging.service';
+import { OpenAiService } from './service/openai.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       load: [configuration],
       envFilePath: '.env',
+      isGlobal: true,
+      cache: true,
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -33,7 +36,13 @@ import { LoggingService } from './service/logging.service';
     }),
     TypeOrmModule.forFeature([Hint, Problem, Student, Logger]),
   ],
-  providers: [ProblemService, HintService, StudentService, LoggingService],
+  providers: [
+    ProblemService,
+    HintService,
+    StudentService,
+    LoggingService,
+    OpenAiService,
+  ],
   controllers: [HintController, ProblemController],
 })
 export class AppModule {}
