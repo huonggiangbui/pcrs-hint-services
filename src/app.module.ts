@@ -13,6 +13,8 @@ import { ProblemService } from './service/problem.service';
 import { StudentService } from './service/student.service';
 import { LoggingService } from './service/logging.service';
 import { OpenAiService } from './service/openai.service';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -37,12 +39,13 @@ import { OpenAiService } from './service/openai.service';
     TypeOrmModule.forFeature([Hint, Problem, Student, Logger]),
   ],
   providers: [
+    AppService,
     ProblemService,
     HintService,
     StudentService,
     LoggingService,
     OpenAiService,
   ],
-  controllers: [HintController, ProblemController],
+  controllers: [AppController, HintController, ProblemController],
 })
 export class AppModule {}
