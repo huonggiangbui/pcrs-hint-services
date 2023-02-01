@@ -22,8 +22,8 @@ export class LoggingService {
       timestamp: new Date(),
       action,
     });
-    logger.hint = hint;
-    logger.student = student;
+    logger.hint = Promise.resolve(hint);
+    logger.student = Promise.resolve(student);
     await this.loggingRepository.save(logger);
     return logger;
   }

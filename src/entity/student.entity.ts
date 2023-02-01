@@ -5,6 +5,8 @@ import {
   ManyToMany,
   JoinTable,
   PrimaryColumn,
+  Index,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { ConditionType, IStudent } from '../types';
 import { Hint } from './hint.entity';
@@ -12,8 +14,12 @@ import { Problem } from './problem.entity';
 import { Logger } from './logger.entity';
 
 @Entity()
+@Index(['uid', 'condition', 'btnText'], { unique: true })
 export class Student implements IStudent {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
   uid: string;
 
   @Column({
@@ -29,10 +35,13 @@ export class Student implements IStudent {
   @OneToMany(() => Hint, (h) => h.student)
   hints: Hint[];
 
-  @ManyToMany(() => Problem, (p) => p.students, { onDelete: 'SET NULL' })
+  @ManyToMany(() => Problem, (p) => p.students, {
+    onDelete: 'SET NULL',
+    cascade: true,
+  })
   @JoinTable()
-  problems: Problem[];
+  problems: Promise<Problem[]>;
 
   @OneToMany(() => Logger, (p) => p.student)
-  logs: Logger[];
+  logs: Promise<Logger[]>;
 }

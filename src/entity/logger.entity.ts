@@ -24,8 +24,8 @@ export class Logger implements ILogger {
   action: ActionType;
 
   @ManyToOne(() => Hint, (h) => h.logs, { onDelete: 'CASCADE', lazy: true })
-  hint: Hint;
+  hint: Promise<Hint>;
 
   @ManyToOne(() => Student, (s) => s.logs, { onDelete: 'CASCADE', lazy: true })
-  student: Student;
+  student: Promise<Student>;
 }

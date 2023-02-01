@@ -7,8 +7,7 @@ import { ConditionType, HintType } from 'src/types';
 import { NullDeciderType, randomize } from 'src/utils/randomize';
 import { Repository } from 'typeorm';
 
-type CreateStudentData = {
-  problem: Problem;
+type BasicStudentData = {
   uid: string;
   condition: ConditionType;
   btnText?: string;
@@ -21,16 +20,27 @@ export class StudentService {
     private studentRepository: Repository<Student>,
   ) {}
 
-  async findByUid(uid: string): Promise<Student> {
-    return await this.studentRepository.findOne({ where: { uid } });
+  async findOne(data: BasicStudentData): Promise<Student> {
+    return await this.studentRepository.findOne({
+      where: { ...data },
+    });
   }
 
-  async create(data: CreateStudentData): Promise<Student> {
-    const { problem, ...others } = data;
-    const student = await this.studentRepository.create(others);
-    student.problems = [problem];
-    await this.studentRepository.save(student);
+  async create(problem: Problem, data: BasicStudentData): Promise<Student> {
+    let student = await this.findOne(data);
+    if (!student) {
+      student = await this.studentRepository.create(data);
+      student.problems = Promise.resolve([problem]);
+      await this.studentRepository.save(student);
+    } else {
+      await this.updateProblem(student, problem);
+    }
     return student;
+  }
+
+  async updateProblem(student: Student, problem: Problem) {
+    (await student.problems).push(problem);
+    await this.studentRepository.save(student);
   }
 
   async handleExperiment(): Promise<{

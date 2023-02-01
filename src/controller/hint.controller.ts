@@ -1,13 +1,12 @@
 import { Body, Controller, Query, Get, Param, Post } from '@nestjs/common';
 import { GetHintDto } from 'src/dto/get-hint';
-import { CreateLoggingData } from 'src/dto/logging';
 import { Logger } from 'src/entity/logger.entity';
 import { HintService } from 'src/service/hint.service';
 import { LoggingService } from 'src/service/logging.service';
 import { OpenAiService } from 'src/service/openai.service';
 import { ProblemService } from 'src/service/problem.service';
 import { StudentService } from 'src/service/student.service';
-import { ConditionType, LanguageType } from 'src/types';
+import { ActionType, ConditionType, LanguageType } from 'src/types';
 
 @Controller()
 export class HintController {
@@ -26,21 +25,27 @@ export class HintController {
     condition: ConditionType;
     btnText?: string;
   }> {
-    let student = await this.studentService.findByUid(query.uid);
-    if (!student) {
-      const problem = await this.problemService.findByPk(
-        params.pk,
-        params.language,
-      );
+    const problem = await this.problemService.findByPk(
+      params.pk,
+      params.language,
+    );
+    let student;
+    const students = (await problem.students).filter(
+      (s) => s.uid === query.uid,
+    );
+
+    if (!students || students.length === 0) {
       const { condition, btnText } =
         await this.studentService.handleExperiment();
-      student = await this.studentService.create({
-        problem,
+      student = await this.studentService.create(problem, {
         uid: query.uid,
         condition,
         btnText,
       });
+    } else {
+      student = students[0];
     }
+
     return { condition: student.condition, btnText: student.btnText };
   }
 
@@ -49,14 +54,26 @@ export class HintController {
     @Param() params: { language: LanguageType; pk: string },
     @Body() body: GetHintDto,
   ): Promise<unknown> {
-    const student = await this.studentService.findByUid(body.uid);
     const problem = await this.problemService.findByPk(
       params.pk,
       params.language,
     );
+    const student = (await problem.students).filter(
+      (s) => s.uid === body.uid,
+    )[0];
 
-    const { hint, type } = await this.hintService.generateHint(
+    const context = `${problem.language} problem: ${problem.name}\n\n${
+      problem.description
+    }\n\n${
+      problem.starter_code
+        ? 'Starter code:\n' + problem.starter_code + '\n\n'
+        : ''
+    }'${problem.solution ? 'Solution:\n' + problem.solution + '\n\n' : ''}`;
+
+    const { hint, prompt, type } = await this.hintService.generateHint(
       OpenAiService.getInstance().openai,
+      problem.language,
+      context,
       body.submission,
     );
 
@@ -65,6 +82,7 @@ export class HintController {
     return await this.hintService.create({
       student,
       problem,
+      prompt,
       hint,
       type,
       submission: body.submission,
@@ -86,10 +104,13 @@ export class HintController {
   @Post('logging/:language/:id')
   async logActivity(
     @Param('id') id: number,
-    @Body() body: CreateLoggingData,
+    @Body() body: { action: ActionType },
   ): Promise<Logger> {
     const hint = await this.hintService.findById(id);
-    const student = await this.studentService.findByUid(body.uid);
-    return await this.loggingService.create(body.action, student, hint);
+    return await this.loggingService.create(
+      body.action,
+      await hint.student,
+      hint,
+    );
   }
 }

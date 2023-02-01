@@ -17,7 +17,7 @@ export class Hint implements IHint {
   id: number;
 
   @ManyToOne(() => Student, (s) => s.hints, { onDelete: 'CASCADE', lazy: true })
-  student: Student;
+  student: Promise<Student>;
 
   @Column({
     type: 'enum',
@@ -25,6 +25,9 @@ export class Hint implements IHint {
     default: HintType.TEXT,
   })
   type: HintType;
+
+  @Column()
+  prompt: string;
 
   @Column()
   hint: string;
@@ -39,8 +42,8 @@ export class Hint implements IHint {
   config: UIConfig;
 
   @ManyToOne(() => Problem, (p) => p.hints, { onDelete: 'CASCADE', lazy: true })
-  problem: Problem;
+  problem: Promise<Problem>;
 
   @OneToMany(() => Logger, (l) => l.hint)
-  logs: Logger[];
+  logs: Promise<Logger[]>;
 }

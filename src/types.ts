@@ -1,6 +1,7 @@
 export interface IHint {
   id: number;
   type: HintType;
+  prompt: string;
   hint: string;
   submission: string;
   feedback?: string;
@@ -13,6 +14,7 @@ export enum HintType {
 }
 
 export interface IStudent {
+  id: number;
   uid: string;
   condition: ConditionType;
   btnText?: string;

@@ -23,10 +23,12 @@ export class ProblemService {
     language: LanguageType,
     options?: FindOneOptions<Problem>,
   ): Promise<Problem> {
-    return await this.problemRepository.findOneOrFail({
+    const problem = await this.problemRepository.findOneOrFail({
       where: { pk, language },
       ...options,
     });
+    await problem.students;
+    return problem;
   }
 
   async create(

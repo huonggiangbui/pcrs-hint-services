@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Hint } from 'src/entity/hint.entity';
 import { FindOneOptions, Repository } from 'typeorm';
-import { DetailLevelType, HintType } from 'src/types';
+import { DetailLevelType, HintType, LanguageType } from 'src/types';
 import { Student } from 'src/entity/student.entity';
 import { Problem } from 'src/entity/problem.entity';
 import { UIConfig } from 'src/entity/Config';
@@ -13,6 +13,7 @@ import { OpenAIApi } from 'openai';
 type CreateHintData = {
   student: Student;
   problem: Problem;
+  prompt: string;
   hint: string;
   type: HintType;
   config: UIConfig;
@@ -36,24 +37,30 @@ export class HintService {
   async create(data: CreateHintData): Promise<Hint> {
     const { problem, student, ...others } = data;
     const hint = await this.hintRepository.create(others);
-    hint.problem = problem;
-    hint.student = student;
+    hint.problem = Promise.resolve(problem);
+    hint.student = Promise.resolve(student);
     await this.hintRepository.save(hint);
     return hint;
   }
 
   async generateHint(
     openai: OpenAIApi,
+    language: LanguageType,
+    context: string,
     submission: string,
   ): Promise<{
     hint: string;
+    prompt: string;
     type: HintType;
   }> {
-    const promptHeader =
-      Object.entries(PROMPT_HEADERS)[
-        Math.floor(Math.random() * Object.keys(PROMPT_HEADERS).length)
-      ];
-    const prompt = promptHeader[0] + submission.slice(40, -41);
+    const promptHeader = randomize(
+      Object.entries(PROMPT_HEADERS),
+      NullDeciderType.NO_NULL,
+    );
+    const prompt = `${context}Student's code:\n\n${submission.slice(
+      40,
+      -41,
+    )}\n\n## ${language}\n\n${promptHeader[0]}`;
 
     const response = await openai.createCompletion({
       model: 'code-davinci-002',
@@ -63,11 +70,20 @@ export class HintService {
       top_p: 1,
       frequency_penalty: 0,
       presence_penalty: 0,
-      stop: ['Problem', 'Example'],
+      stop: ['Problem', 'Example', 'Solution', language],
     });
+
+    // let hint = null;
+    // if (response.data.choices && response.data.choices[0].text) {
+    //   const hintIndex =
+    //     response.data.choices[0].text.indexOf(promptHeader[0]) +
+    //     promptHeader[0].length;
+    //   hint = response.data.choices[0].text.slice(hintIndex);
+    // }
 
     return {
       hint: response.data.choices[0].text,
+      prompt: promptHeader[0],
       type: promptHeader[1],
     };
   }
@@ -100,7 +116,7 @@ export class HintService {
     }
     hint.feedback = hint.feedback.concat(feedback, ',');
     await this.hintRepository.save(hint);
-    const showTextFeedback = randomize([true, false], NullDeciderType.NO_NULL);
+    const showTextFeedback = parseInt(feedback) < 3;
     return {
       message: 'Feedback received',
       showTextFeedback,
