@@ -6,7 +6,12 @@ import { DetailLevelType, HintType, LanguageType } from 'src/types';
 import { Student } from 'src/entity/student.entity';
 import { Problem } from 'src/entity/problem.entity';
 import { UIConfig } from 'src/entity/Config';
-import { HINT_DESCRIPTION, HINT_TITLE, PROMPT_HEADERS } from 'src/constants';
+import {
+  HINT_DESCRIPTION,
+  HINT_TITLE,
+  MORE_HINT_PROMPT_HEADERS,
+  PROMPT_HEADERS,
+} from 'src/constants';
 import { NullDeciderType, randomize } from 'src/utils/randomize';
 import { OpenAIApi } from 'openai';
 
@@ -48,19 +53,34 @@ export class HintService {
     language: LanguageType,
     context: string,
     submission: string,
+    prevHint?: number,
   ): Promise<{
     hint: string;
     prompt: string;
     type: HintType;
   }> {
-    const promptHeader = randomize(
-      Object.entries(PROMPT_HEADERS),
-      NullDeciderType.NO_NULL,
-    );
-    const prompt = `${context}Student's code:\n\n${submission.slice(
-      40,
-      -41,
-    )}\n\n## ${language}\n\n${promptHeader[0]}`;
+    let promptHeader;
+    let prompt;
+
+    if (!prevHint) {
+      promptHeader = randomize(
+        Object.entries(PROMPT_HEADERS),
+        NullDeciderType.NO_NULL,
+      );
+      prompt = `${context}Student's code:\n\n${submission.slice(
+        40,
+        -41,
+      )}\n\n## ${language}\n\n${promptHeader[0]}`;
+    } else {
+      const oldHint = this.findById(prevHint);
+      promptHeader = randomize(
+        Object.entries(MORE_HINT_PROMPT_HEADERS),
+        NullDeciderType.NO_NULL,
+      );
+      prompt = `${context}${(await oldHint).prompt}${
+        (await oldHint).hint
+      }\n\n## ${language}\n\n${promptHeader[0]}`;
+    }
 
     const response = await openai.createCompletion({
       model: 'code-davinci-002',
@@ -72,14 +92,6 @@ export class HintService {
       presence_penalty: 0,
       stop: ['Problem', 'Example', 'Solution', language],
     });
-
-    // let hint = null;
-    // if (response.data.choices && response.data.choices[0].text) {
-    //   const hintIndex =
-    //     response.data.choices[0].text.indexOf(promptHeader[0]) +
-    //     promptHeader[0].length;
-    //   hint = response.data.choices[0].text.slice(hintIndex);
-    // }
 
     return {
       hint: response.data.choices[0].text,

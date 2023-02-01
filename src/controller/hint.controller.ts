@@ -75,6 +75,7 @@ export class HintController {
       problem.language,
       context,
       body.submission,
+      body.prevHint,
     );
 
     const config = await this.hintService.experimentUIConfig(type);
