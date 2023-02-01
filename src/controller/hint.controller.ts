@@ -91,7 +91,7 @@ export class HintController {
     });
   }
 
-  @Post('feedback/:language/:id')
+  @Post('feedback/:id')
   async sendFeedback(
     @Param('id') id: number,
     @Body() body: { feedback: string },
@@ -102,7 +102,7 @@ export class HintController {
     return await this.hintService.saveFeeback(id, body.feedback);
   }
 
-  @Post('logging/:language/:id')
+  @Post('logging/:id')
   async logActivity(
     @Param('id') id: number,
     @Body() body: { action: ActionType },
