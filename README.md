@@ -259,18 +259,3 @@ Success response
   "affected": 1
 }
 ```
-
-
-
-
-TEMPLATE
-
-Example body:
-```yaml
-
-```
-
-Success response
-```yaml
-
-```
