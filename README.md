@@ -1,3 +1,5 @@
+This application is built using [Nest](https://github.com/nestjs/nest) framework.
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
 </p>
@@ -24,16 +26,22 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+PCRS-hint-service is a hint generator API for PCRS that uses [openAI](https://openai.com/api/). 
 
 ## Installation
-
-```bash
-$ npm install
+1. Clone the repository
+```sh
+$ git clone https://github.com/huonggiangbui/pcrs-hint-services.git
+```
+2. Install dependencies
+```sh
+$ npm run build
 ```
 
-## Running the app
+## Running the App
+1. Request and add a `.env `file to the root of the project directory.
 
+2. Run the server.
 ```bash
 # development
 $ npm run start
@@ -45,29 +53,224 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
-## Test
+## API Endpoint Documentation
+### **POST /api/hints/:language/:pk**
+- Requesting a hint.
+- Note: `prevHint` is an optional parameter.
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+Example body:
+``` yaml
+{
+  submission: "",
+  uid: "1",
+  prevHint: 0,
+}
+```
+Success response:
+```yaml
+{
+  "type": "",
+  "prompt": "",
+  "hint": "",
+  "submission": "",
+  "config": 
+    {
+      "title": "",
+      "description": null,
+      "level": 1,
+      "more": true,
+      "feedback": false
+    },
+  "__problem__": 
+    {
+      "id": 1,
+      "pk": "1",
+      "language": "sql",
+      "name": "",
+      "description": "",
+      "solution": "",
+      "starter_code": "",
+      "__students__": [
+        {
+        "id": 1,
+        "uid": "1",
+        "condition": "",
+        "btnText": ""
+        },
+      ],
+      "__has_students__": true
+    },
+    "__has_problem__": true,
+    "__has_student__": true,
+    "feedback": null,
+    "id": 1}
 ```
 
-## Support
+### **GET api/config/:language/:pk**
+- Requesting the specified api configuration for a specific question.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Example body:
+```yaml
+{
+  uid: 1
+}
+```
+Success response:
+```yaml
+{
+    "condition": "control",
+    "btnText": "Get Hint"
+}
+```
 
-## Stay in touch
+### **POST api/feedback/:id**
+- Submitting a hint feedback
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Example body:
+```yaml
+{
+    feedback: ""
+}
+```
 
-## License
+Success response
+```yaml
+{
+    "message": "Feedback received",
+    "showTextFeedback": false
+}
+```
 
-Nest is [MIT licensed](LICENSE).
+### **POST api/logging/:id**
+- Logs user action
+- There are 4 valid `action`:
+  - `'request'` = requesting hint action,
+  - `'follow-up'` = requesting a follow up hint action,
+  - `'close'` = closing the hint modal,
+  - `'expand'` = expanding the hint modal,
+
+Example body:
+```yaml
+{
+  action: "request"
+}
+```
+
+Success response
+```yaml
+{
+    "timestamp": "",
+    "action": "request",
+    "__hint__": {
+        "id": 1,
+        "type": "",
+        "prompt": "",
+        "hint": "",
+        "submission": "",
+        "feedback": "",
+        "config": {
+            "title": "",
+            "description": "",
+            "level": 1,
+            "more": false,
+            "feedback": true
+        },
+        "__student__": {
+            "id": 1,
+            "uid": "1",
+            "condition": "control",
+            "btnText": "Get hint"
+        },
+        "__has_student__": true
+    },
+    "__has_hint__": true,
+    "__student__": {
+        "id": 1,
+        "uid": "2",
+        "condition": "control",
+        "btnText": "Get hint"
+    },
+    "__has_student__": true,
+    "id": 1
+}
+```
+
+### **POST api/problems/:language**
+- Saves problems data.
+
+Example body:
+```yaml
+{
+  name: '',
+  description: '',
+  pk: '1',
+  starter_code: '',
+  solution: ''
+}
+```
+
+Success response
+```yaml
+{
+  "pk": "1",
+  "language": "",
+  "name": "",
+  "description": "",
+  "solution": "",
+  "starter_code": "",
+  "id": 1
+}
+```
+
+### **PUT api/problems/:language/:pk**
+- Updates an existing problem data.
+
+Example body:
+```yaml
+{
+  name: '',
+  description: '',
+  starter_code: '',
+  solution: ''
+}
+```
+
+Success response
+```yaml
+{
+  "generatedMaps": [],
+  "raw": [],
+  "affected": 1
+}
+```
+
+### **DELETE api/problem/:language/:pk**
+- Deletes problem by pk
+
+Example body:
+```yaml
+{}
+```
+
+Success response
+```yaml
+{
+  "raw": [],
+  "affected": 1
+}
+```
+
+
+
+
+TEMPLATE
+
+Example body:
+```yaml
+
+```
+
+Success response
+```yaml
+
+```
