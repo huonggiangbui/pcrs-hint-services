@@ -23,7 +23,7 @@ export class HintController {
     @Query() query: { uid: string },
   ): Promise<{
     condition: ConditionType;
-    btnText?: string;
+    btnText: string;
   }> {
     const problem = await this.problemService.findByPk(
       params.pk,
