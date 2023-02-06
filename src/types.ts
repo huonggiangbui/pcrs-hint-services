@@ -17,7 +17,7 @@ export interface IStudent {
   id: number;
   uid: string;
   condition: ConditionType;
-  btnText?: string;
+  btnText: string;
 }
 
 export enum ConditionType {
@@ -26,11 +26,11 @@ export enum ConditionType {
 }
 
 export interface IUIConfig {
-  title?: string;
-  description?: string;
+  title: string;
+  description: string;
   level?: DetailLevelType;
-  more?: boolean;
-  feedback?: boolean;
+  more: boolean;
+  feedback: boolean;
 }
 
 export enum DetailLevelType {

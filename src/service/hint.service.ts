@@ -12,7 +12,7 @@ import {
   MORE_HINT_PROMPT_HEADERS,
   PROMPT_HEADERS,
 } from 'src/constants';
-import { NullDeciderType, randomize } from 'src/utils/randomize';
+import { randomize } from 'src/utils/randomize';
 import { OpenAIApi } from 'openai';
 
 type CreateHintData = {
@@ -63,20 +63,14 @@ export class HintService {
     let prompt;
 
     if (!prevHint) {
-      promptHeader = randomize(
-        Object.entries(PROMPT_HEADERS),
-        NullDeciderType.NO_NULL,
-      );
+      promptHeader = randomize(Object.entries(PROMPT_HEADERS));
       prompt = `${context}Student's code:\n\n${submission.slice(
         40,
         -41,
       )}\n\n## ${language}\n\n${promptHeader[0]}`;
     } else {
       const oldHint = this.findById(prevHint);
-      promptHeader = randomize(
-        Object.entries(MORE_HINT_PROMPT_HEADERS),
-        NullDeciderType.NO_NULL,
-      );
+      promptHeader = randomize(Object.entries(MORE_HINT_PROMPT_HEADERS));
       prompt = `${context}${(await oldHint).prompt}${
         (await oldHint).hint
       }\n\n## ${language}\n\n${promptHeader[0]}`;
@@ -101,17 +95,14 @@ export class HintService {
   }
 
   async experimentUIConfig(type: HintType): Promise<UIConfig> {
-    const title = randomize(HINT_TITLE, NullDeciderType.ALLOW_NULL);
-    const description = randomize(HINT_DESCRIPTION, NullDeciderType.ALLOW_NULL);
+    const title = randomize(HINT_TITLE);
+    const description = randomize(HINT_DESCRIPTION);
     let level = null;
     if (type === 'text') {
-      level = randomize(
-        [DetailLevelType.BOTTOM_OUT, DetailLevelType.HIDDEN],
-        NullDeciderType.NO_NULL,
-      );
+      level = randomize([DetailLevelType.BOTTOM_OUT, DetailLevelType.HIDDEN]);
     }
-    const more = randomize([true, false], NullDeciderType.NO_NULL);
-    const feedback = randomize([true, false], NullDeciderType.NO_NULL);
+    const more = randomize([true, false]);
+    const feedback = randomize([true, false]);
     return { title, description, level, more, feedback };
   }
 

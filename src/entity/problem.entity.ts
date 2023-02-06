@@ -1,18 +1,18 @@
 import {
   Entity,
-  Index,
   Column,
   PrimaryGeneratedColumn,
   OneToMany,
   ManyToMany,
   JoinTable,
+  Unique,
 } from 'typeorm';
 import { IProblem, LanguageType } from 'src/types';
 import { Hint } from './hint.entity';
 import { Student } from './student.entity';
 
 @Entity()
-@Index(['pk', 'language'], { unique: true })
+@Unique(['pk', 'language'])
 export class Problem implements IProblem {
   @PrimaryGeneratedColumn()
   id: number;

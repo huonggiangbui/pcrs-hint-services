@@ -3,14 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { HINT_BUTTON_TEXT } from 'src/constants';
 import { Problem } from 'src/entity/problem.entity';
 import { Student } from 'src/entity/student.entity';
-import { ConditionType, HintType } from 'src/types';
-import { NullDeciderType, randomize } from 'src/utils/randomize';
+import { ConditionType } from 'src/types';
+import { randomize } from 'src/utils/randomize';
 import { Repository } from 'typeorm';
 
 type BasicStudentData = {
   uid: string;
   condition: ConditionType;
-  btnText?: string;
+  btnText: string;
 };
 
 @Injectable()
@@ -47,11 +47,11 @@ export class StudentService {
     condition: ConditionType;
     btnText?: string;
   }> {
-    const condition = randomize(
-      [ConditionType.CONTROL, ConditionType.EXPERIMENT],
-      NullDeciderType.NO_NULL,
-    );
-    const btnText = randomize(HINT_BUTTON_TEXT, NullDeciderType.ALLOW_NULL);
+    const condition = randomize([
+      ConditionType.CONTROL,
+      ConditionType.EXPERIMENT,
+    ]);
+    const btnText = randomize(HINT_BUTTON_TEXT);
     return { condition, btnText };
   }
 }
