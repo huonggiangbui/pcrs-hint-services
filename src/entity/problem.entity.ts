@@ -42,9 +42,7 @@ export class Problem implements IProblem {
   @OneToMany(() => Hint, (h) => h.problem)
   hints: Promise<Hint[]>;
 
-  @ManyToMany(() => Student, (s) => s.problems, {
-    onDelete: 'SET NULL',
-  })
+  @ManyToMany(() => Student, (s) => s.problems)
   @JoinTable()
   students: Promise<Student[]>;
 }

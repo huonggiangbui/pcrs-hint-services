@@ -13,7 +13,6 @@ import { Problem } from './problem.entity';
 import { Logger } from './logger.entity';
 
 @Entity()
-@Unique(['uid', 'condition', 'btnText'])
 export class Student implements IStudent {
   @PrimaryGeneratedColumn()
   id: number;
@@ -35,10 +34,8 @@ export class Student implements IStudent {
   hints: Hint[];
 
   @ManyToMany(() => Problem, (p) => p.students, {
-    onDelete: 'SET NULL',
     cascade: true,
   })
-  @JoinTable()
   problems: Promise<Problem[]>;
 
   @OneToMany(() => Logger, (p) => p.student)

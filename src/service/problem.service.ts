@@ -66,8 +66,7 @@ export class ProblemService {
     });
   }
 
-  async delete(language: LanguageType, pk: string): Promise<DeleteResult> {
-    const problem = await this.findByPk(pk, language);
-    return await this.problemRepository.delete(problem.id);
+  async delete(problem: Problem): Promise<Problem> {
+    return await this.problemRepository.remove(problem);
   }
 }

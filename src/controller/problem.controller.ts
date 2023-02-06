@@ -11,11 +11,15 @@ import { CreateProblemDto } from 'src/dto/create-problem';
 import { UpdateProblemDto } from 'src/dto/update-problem';
 import { Problem } from 'src/entity/problem.entity';
 import { ProblemService } from 'src/service/problem.service';
+import { StudentService } from 'src/service/student.service';
 import { LanguageType } from 'src/types';
 
 @Controller()
 export class ProblemController {
-  constructor(private readonly problemService: ProblemService) {}
+  constructor(
+    private readonly problemService: ProblemService,
+    private readonly studentService: StudentService,
+  ) {}
 
   @Post('problems/:language')
   async createProblem(
@@ -37,9 +41,11 @@ export class ProblemController {
   @Delete('problems/:language/:pk')
   async deleteProblem(
     @Param() params: { language: LanguageType; pk: string },
-    @Query() query,
-  ): Promise<unknown> {
+  ): Promise<Problem> {
     const { language, pk } = params;
-    return this.problemService.delete(language, pk);
+    const problem = await this.problemService.findByPk(pk, language);
+    this.studentService.remove(await problem.students);
+    await this.problemService.delete(problem);
+    return problem;
   }
 }

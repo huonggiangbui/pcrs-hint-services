@@ -8,6 +8,11 @@ import { ProblemService } from 'src/service/problem.service';
 import { StudentService } from 'src/service/student.service';
 import { ActionType, ConditionType, LanguageType } from 'src/types';
 
+enum Hook {
+  ON_SETUP = 'on-setup',
+  ON_SUBMIT = 'on-submit',
+}
+
 @Controller()
 export class HintController {
   constructor(
@@ -20,7 +25,7 @@ export class HintController {
   @Get('config/:language/:pk')
   async getConfig(
     @Param() params: { language: LanguageType; pk: string },
-    @Query() query: { uid: string },
+    @Query() query: { uid: string; hook: Hook },
   ): Promise<{
     condition: ConditionType;
     btnText: string;
@@ -37,11 +42,19 @@ export class HintController {
     if (!students || students.length === 0) {
       const { condition, btnText } =
         await this.studentService.handleExperiment();
-      student = await this.studentService.create(problem, {
+      student = await this.studentService.findOne({
         uid: query.uid,
         condition,
         btnText,
       });
+      if (!student) {
+        student = await this.studentService.create({
+          uid: query.uid,
+          condition,
+          btnText,
+        });
+      }
+      await this.studentService.updateProblemOfStudent(student, problem);
     } else {
       student = students[0];
     }
