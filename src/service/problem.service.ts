@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateProblemDto } from 'src/dto/create-problem';
 import { UpdateProblemDto } from 'src/dto/update-problem';
 import { Problem } from 'src/entity/problem.entity';
-import { LanguageType } from 'src/types';
+import { LanguageType } from '../types';
 import {
   DeleteResult,
   FindOneOptions,

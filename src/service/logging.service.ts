@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Hint } from 'src/entity/hint.entity';
 import { Logger } from 'src/entity/logger.entity';
 import { Student } from 'src/entity/student.entity';
-import { ActionType } from 'src/types';
+import { ActionType } from '../types';
 import { Repository } from 'typeorm';
 
 @Injectable()

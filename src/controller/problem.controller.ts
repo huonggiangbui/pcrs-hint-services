@@ -12,7 +12,7 @@ import { UpdateProblemDto } from 'src/dto/update-problem';
 import { Problem } from 'src/entity/problem.entity';
 import { ProblemService } from 'src/service/problem.service';
 import { StudentService } from 'src/service/student.service';
-import { LanguageType } from 'src/types';
+import { LanguageType } from '../types';
 
 @Controller()
 export class ProblemController {

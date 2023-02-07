@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { HINT_BUTTON_TEXT } from 'src/constants';
 import { Problem } from 'src/entity/problem.entity';
 import { Student } from 'src/entity/student.entity';
-import { ConditionType } from 'src/types';
+import { ConditionType } from '../types';
 import { randomize } from 'src/utils/randomize';
 import { Repository } from 'typeorm';
 

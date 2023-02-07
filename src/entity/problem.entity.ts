@@ -7,7 +7,7 @@ import {
   JoinTable,
   Unique,
 } from 'typeorm';
-import { IProblem, LanguageType } from 'src/types';
+import { IProblem, LanguageType } from '../types';
 import { Hint } from './hint.entity';
 import { Student } from './student.entity';
 

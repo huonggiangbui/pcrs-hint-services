@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Hint } from 'src/entity/hint.entity';
 import { FindOneOptions, Repository } from 'typeorm';
-import { DetailLevelType, HintType, LanguageType } from 'src/types';
+import { DetailLevelType, HintType, LanguageType } from '../types';
 import { Student } from 'src/entity/student.entity';
 import { Problem } from 'src/entity/problem.entity';
 import { UIConfig } from 'src/entity/Config';

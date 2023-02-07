@@ -21,7 +21,9 @@ jobs:
       - name: npm install, build
         run: |
           npm install
+          npm run makemigrations
           npm run build --if-present
+          npm run migrate
 
       - name: Zip all files for upload between jobs
         run: zip --symlinks -r nest.zip ./*

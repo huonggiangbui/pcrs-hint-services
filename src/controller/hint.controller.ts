@@ -6,7 +6,7 @@ import { LoggingService } from 'src/service/logging.service';
 import { OpenAiService } from 'src/service/openai.service';
 import { ProblemService } from 'src/service/problem.service';
 import { StudentService } from 'src/service/student.service';
-import { ActionType, ConditionType, LanguageType } from 'src/types';
+import { ActionType, ConditionType, LanguageType } from '../types';
 
 enum Hook {
   ON_SETUP = 'on-setup',

@@ -5,7 +5,7 @@ import {
   CreateDateColumn,
   ManyToOne,
 } from 'typeorm';
-import { ILogger, ActionType } from 'src/types';
+import { ILogger, ActionType } from '../types';
 import { Hint } from './hint.entity';
 import { Student } from './student.entity';
 
