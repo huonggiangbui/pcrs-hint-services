@@ -44,7 +44,6 @@ export class ProblemController {
   ): Promise<Problem> {
     const { language, pk } = params;
     const problem = await this.problemService.findByPk(pk, language);
-    this.studentService.remove(await problem.students);
     await this.problemService.delete(problem);
     return problem;
   }
