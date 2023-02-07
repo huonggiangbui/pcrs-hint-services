@@ -20,12 +20,22 @@ export class StudentService {
     private studentRepository: Repository<Student>,
   ) {}
 
+  /**
+   * Finds the first student entity given <data>.
+   * @param data 
+   * @returns A student entity matching data, null otherwise.
+   */
   async findOne(data: BasicStudentData): Promise<Student> {
     return await this.studentRepository.findOne({
       where: { ...data },
     });
   }
 
+/**
+   * Creates a student entity and saves it to the repository.
+   * @param data 
+   * @returns A new student entity
+   */
   async create(problem: Problem, data: BasicStudentData): Promise<Student> {
     let student = await this.findOne(data);
     if (!student) {
@@ -38,11 +48,20 @@ export class StudentService {
     return student;
   }
 
+  /**
+   * Updates the <problem> associated with <student>.
+   * @param student 
+   * @param problem 
+   */
   async updateProblem(student: Student, problem: Problem) {
     (await student.problems).push(problem);
     await this.studentRepository.save(student);
   }
 
+  /**
+   * Randomizes whether or not a student is in the control or experiment group
+   * @returns 
+   */
   async handleExperiment(): Promise<{
     condition: ConditionType;
     btnText?: string;

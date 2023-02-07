@@ -18,6 +18,13 @@ export class ProblemService {
     private problemRepository: Repository<Problem>,
   ) {}
 
+  /**
+   * Returns a problem entity associated with the pk.
+   * @param pk 
+   * @param language 
+   * @param options 
+   * @returns A problem entity 
+   */
   async findByPk(
     pk: string,
     language: LanguageType,
@@ -31,6 +38,13 @@ export class ProblemService {
     return problem;
   }
 
+ 
+  /**
+   * Creates a new problem entity and saves it to the repository.
+   * @param language 
+   * @param data 
+   * @returns A new problem entity
+   */
   async create(
     language: LanguageType,
     data: CreateProblemDto,
@@ -51,6 +65,13 @@ export class ProblemService {
     return problem;
   }
 
+  /**
+   * Updates an problem in the repository.
+   * @param language 
+   * @param pk 
+   * @param data 
+   * @returns 
+   */
   async update(
     language: LanguageType,
     pk: string,
@@ -66,6 +87,12 @@ export class ProblemService {
     });
   }
 
+  /**
+   * Deletes a problem in the repository.
+   * @param language 
+   * @param pk 
+   * @returns 
+   */
   async delete(language: LanguageType, pk: string): Promise<DeleteResult> {
     const problem = await this.findByPk(pk, language);
     return await this.problemRepository.delete(problem.id);

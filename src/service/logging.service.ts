@@ -13,6 +13,13 @@ export class LoggingService {
     private loggingRepository: Repository<Logger>,
   ) {}
 
+  /**
+   * Creates a new Logger entity and saves it to the repository.
+   * @param action 
+   * @param student 
+   * @param hint 
+   * @returns A new logger entity
+   */
   async create(
     action: ActionType,
     student: Student,

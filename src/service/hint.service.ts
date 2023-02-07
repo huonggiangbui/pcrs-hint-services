@@ -32,6 +32,12 @@ export class HintService {
     private hintRepository: Repository<Hint>,
   ) {}
 
+  /**
+   * Returns a hint entity by id.
+   * @param id 
+   * @param options 
+   * @returns hint entity associated by id
+   */
   async findById(id: number, options?: FindOneOptions<Hint>): Promise<Hint> {
     return await this.hintRepository.findOneOrFail({
       where: { id },
@@ -39,6 +45,11 @@ export class HintService {
     });
   }
 
+  /**
+   * Creates a new hint entity and saves it to the repository.
+   * @param data 
+   * @returns A new hint entity
+   */
   async create(data: CreateHintData): Promise<Hint> {
     const { problem, student, ...others } = data;
     const hint = await this.hintRepository.create(others);
@@ -48,6 +59,17 @@ export class HintService {
     return hint;
   }
 
+  /**
+   * Generates a new hint by calling openAI API. Currently uses
+   * code davinchi 2 model.
+   * @param openai 
+   * @param language 
+   * @param context 
+   * @param submission 
+   * @param prevHint 
+   * @returns An object containing the new hint, the prompt used to 
+   * generate the hint and type of hint (code or text).
+   */
   async generateHint(
     openai: OpenAIApi,
     language: LanguageType,
@@ -100,6 +122,12 @@ export class HintService {
     };
   }
 
+  /**
+   * Randomizes the UI config of the hint, in particular the title and description of the hint.
+   * 
+   * @param type 
+   * @returns An object containing data needed to show a hint 
+   */
   async experimentUIConfig(type: HintType): Promise<UIConfig> {
     const title = randomize(HINT_TITLE, NullDeciderType.ALLOW_NULL);
     const description = randomize(HINT_DESCRIPTION, NullDeciderType.ALLOW_NULL);
@@ -115,6 +143,12 @@ export class HintService {
     return { title, description, level, more, feedback };
   }
 
+  /**
+   * Creates a new feedback entity and saves it to the repository.
+   * @param id 
+   * @param feedback 
+   * @returns A confirmation that the feedback is recieved.
+   */
   async saveFeeback(
     id: number,
     feedback: string,

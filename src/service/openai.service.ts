@@ -13,6 +13,10 @@ export class OpenAiService {
     this.openai = new OpenAIApi(configuration);
   }
 
+  /**
+   * Returns the instance of the OpenAi service.
+   * @returns OpenAiService instance
+   */
   public static getInstance(): OpenAiService {
     if (!OpenAiService.instance) {
       OpenAiService.instance = new OpenAiService();
