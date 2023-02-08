@@ -19,4 +19,5 @@ export const ormConfig: TypeOrmModuleOptions = {
   ssl: process.env.DB_SSL === 'true' && { rejectUnauthorized: false },
   migrations: [path.resolve(`${__dirname}/src/migrations/*{.ts,.js}`)],
   keepConnectionAlive: true,
+  migrationsRun: true,
 };
