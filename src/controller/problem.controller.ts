@@ -11,15 +11,11 @@ import { CreateProblemDto } from 'src/dto/create-problem';
 import { UpdateProblemDto } from 'src/dto/update-problem';
 import { Problem } from 'src/entity/problem.entity';
 import { ProblemService } from 'src/service/problem.service';
-import { StudentService } from 'src/service/student.service';
 import { LanguageType } from '../types';
 
 @Controller()
 export class ProblemController {
-  constructor(
-    private readonly problemService: ProblemService,
-    private readonly studentService: StudentService,
-  ) {}
+  constructor(private readonly problemService: ProblemService) {}
 
   @Post('problems/:language')
   async createProblem(

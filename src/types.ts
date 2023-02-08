@@ -17,7 +17,7 @@ export interface IStudent {
   id: number;
   uid: string;
   condition: ConditionType;
-  btnText: string;
+  btnText?: string;
 }
 
 export enum ConditionType {

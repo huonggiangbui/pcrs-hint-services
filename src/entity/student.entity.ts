@@ -27,8 +27,8 @@ export class Student implements IStudent {
   })
   condition: ConditionType;
 
-  @Column()
-  btnText: string;
+  @Column({ nullable: true })
+  btnText?: string;
 
   @OneToMany(() => Hint, (h) => h.student)
   hints: Hint[];

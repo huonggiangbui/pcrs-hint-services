@@ -38,13 +38,16 @@ export class StudentService {
 
   async handleExperiment(): Promise<{
     condition: ConditionType;
-    btnText: string;
+    btnText: string | null;
   }> {
     const condition = randomize([
       ConditionType.CONTROL,
       ConditionType.EXPERIMENT,
     ]);
-    const btnText = randomize(HINT_BUTTON_TEXT);
+    let btnText = null;
+    if (condition === ConditionType.EXPERIMENT) {
+      btnText = randomize(HINT_BUTTON_TEXT);
+    }
     return { condition, btnText };
   }
 
