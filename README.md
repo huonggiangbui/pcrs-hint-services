@@ -53,8 +53,13 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
-## API Endpoint Documentation
+# API Endpoint Documentation
+## **Hint Controllers**
+- The following API controllers are implemented in `src/controller/hint.controller.ts`
 ### **POST /api/hints/:language/:pk**
+``` typescript
+@Post('hints/:language/:pk')
+```
 - Requesting a hint.
 - Note: `prevHint` is an optional parameter.
 
@@ -107,6 +112,10 @@ Success response:
 ```
 
 ### **GET api/config/:language/:pk**
+```typescript
+ @Post('feedback/:id')
+```
+
 - Requesting the specified api configuration for a specific question.
 
 Example body:
@@ -124,6 +133,9 @@ Success response:
 ```
 
 ### **POST api/feedback/:id**
+```typescript
+  @Post('feedback/:id')
+```
 - Submitting a hint feedback
 
 Example body:
@@ -142,6 +154,9 @@ Success response
 ```
 
 ### **POST api/logging/:id**
+```typescript
+  @Post('logging/:id')
+```
 - Logs user action
 - There are 4 valid `action`:
   - `'request'` = requesting hint action,
@@ -195,7 +210,12 @@ Success response
 }
 ```
 
+## **Problem Controllers**
+- The following API controllers are implemented in ```src/controller/problem.controller.ts```
 ### **POST api/problems/:language**
+``` typescript
+  @Post('problems/:language')
+```
 - Saves problems data.
 
 Example body:
@@ -223,6 +243,9 @@ Success response
 ```
 
 ### **PUT api/problems/:language/:pk**
+``` typescript
+  @Put('problems/:language/:pk')
+```
 - Updates an existing problem data.
 
 Example body:
@@ -245,6 +268,9 @@ Success response
 ```
 
 ### **DELETE api/problem/:language/:pk**
+``` typescript
+  @Delete('problems/:language/:pk')
+```
 - Deletes problem by pk
 
 Example body:
