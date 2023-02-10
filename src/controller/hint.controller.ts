@@ -114,7 +114,7 @@ export class HintController {
   @Post('hints/:language/:pk')
   async postHint(
     @Param() params: { language: LanguageType; pk: string },
-    @Body() body: { hint: string; type: HintType },
+    @Body() body: { hint: string; type: HintType; level: number },
   ): Promise<Hint> {
     const problem = await this.problemService.findByPk(
       params.pk,

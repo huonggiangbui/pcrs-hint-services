@@ -25,6 +25,7 @@ type CreateHintData = {
   prompt?: string;
   hint: string;
   type: HintType;
+  level?: number;
   author: HintAuthorType;
 };
 
@@ -51,6 +52,9 @@ export class HintService {
   async create(data: CreateHintData): Promise<Hint> {
     const { problem, type, author, ...others } = data;
     const config = await this.experimentUIConfig(type, author);
+    if (author === HintAuthorType.INSTRUCTOR) {
+      config.level = data.level;
+    }
     const hint = await this.hintRepository.create({
       ...others,
       config,
@@ -67,11 +71,11 @@ export class HintService {
     const title = randomize(HINT_TITLE);
     const description = randomize(HINT_DESCRIPTION);
     let level = null;
-    if (type === HintType.TEXT) {
-      level = randomize([DetailLevelType.BOTTOM_OUT, DetailLevelType.HIDDEN]);
-    }
     let more = null;
     if (author !== HintAuthorType.INSTRUCTOR) {
+      if (type === HintType.TEXT) {
+        level = randomize([DetailLevelType.BOTTOM_OUT, DetailLevelType.HIDDEN]);
+      }
       more = randomize([true, false]);
     }
     return { title, description, level, more };
