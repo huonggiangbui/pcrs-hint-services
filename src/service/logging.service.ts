@@ -13,17 +13,19 @@ export class LoggingService {
     private loggingRepository: Repository<Logger>,
   ) {}
 
-  async create(
-    action: ActionType,
-    student: Student,
-    hint: Hint,
-  ): Promise<Logger> {
+  async create(data: {
+    action: ActionType;
+    student: Student;
+    submission: string;
+    hint: Hint;
+  }): Promise<Logger> {
     const logger = await this.loggingRepository.create({
       timestamp: new Date(),
-      action,
+      action: data.action,
+      submission: data.submission,
     });
-    logger.hint = Promise.resolve(hint);
-    logger.student = Promise.resolve(student);
+    logger.hint = Promise.resolve(data.hint);
+    logger.student = Promise.resolve(data.student);
     await this.loggingRepository.save(logger);
     return logger;
   }

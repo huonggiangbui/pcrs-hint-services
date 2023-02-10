@@ -2,7 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Hint } from 'src/entity/hint.entity';
 import { FindOneOptions, Repository } from 'typeorm';
-import { DetailLevelType, HintType, LanguageType } from '../types';
+import {
+  DetailLevelType,
+  HintAuthorType,
+  HintType,
+  LanguageType,
+} from '../types';
 import { Student } from 'src/entity/student.entity';
 import { Problem } from 'src/entity/problem.entity';
 import { UIConfig } from 'src/entity/Config';
@@ -16,13 +21,11 @@ import { randomize } from 'src/utils/randomize';
 import { OpenAIApi } from 'openai';
 
 type CreateHintData = {
-  student: Student;
   problem: Problem;
-  prompt: string;
+  prompt?: string;
   hint: string;
   type: HintType;
-  config: UIConfig;
-  submission: string;
+  author: HintAuthorType;
 };
 
 @Injectable()
@@ -39,23 +42,49 @@ export class HintService {
     });
   }
 
+  async findAllInstructorHints(problem: Problem): Promise<Hint[]> {
+    return (await problem.hints).filter(
+      (hint) => hint.author === HintAuthorType.INSTRUCTOR,
+    );
+  }
+
   async create(data: CreateHintData): Promise<Hint> {
-    const { problem, student, ...others } = data;
-    const hint = await this.hintRepository.create(others);
+    const { problem, type, author, ...others } = data;
+    const config = await this.experimentUIConfig(type, author);
+    const hint = await this.hintRepository.create({
+      ...others,
+      config,
+    });
     hint.problem = Promise.resolve(problem);
-    hint.student = Promise.resolve(student);
     await this.hintRepository.save(hint);
     return hint;
   }
 
-  async generateHint(
+  async experimentUIConfig(
+    type: HintType,
+    author: HintAuthorType,
+  ): Promise<UIConfig> {
+    const title = randomize(HINT_TITLE);
+    const description = randomize(HINT_DESCRIPTION);
+    let level = null;
+    if (type === HintType.TEXT) {
+      level = randomize([DetailLevelType.BOTTOM_OUT, DetailLevelType.HIDDEN]);
+    }
+    let more = null;
+    if (author !== HintAuthorType.INSTRUCTOR) {
+      more = randomize([true, false]);
+    }
+    return { title, description, level, more };
+  }
+
+  async generateAutomaticHint(
     openai: OpenAIApi,
     language: LanguageType,
     context: string,
     submission: string,
     prevHint?: number,
   ): Promise<{
-    hint: string;
+    hintContent: string;
     prompt: string;
     type: HintType;
   }> {
@@ -88,22 +117,16 @@ export class HintService {
     });
 
     return {
-      hint: response.data.choices[0].text,
+      hintContent: response.data.choices[0].text,
       prompt: promptHeader[0],
       type: promptHeader[1],
     };
   }
 
-  async experimentUIConfig(type: HintType): Promise<UIConfig> {
-    const title = randomize(HINT_TITLE);
-    const description = randomize(HINT_DESCRIPTION);
-    let level = null;
-    if (type === 'text') {
-      level = randomize([DetailLevelType.BOTTOM_OUT, DetailLevelType.HIDDEN]);
-    }
-    const more = randomize([true, false]);
-    const feedback = randomize([true, false]);
-    return { title, description, level, more, feedback };
+  async updateStudentOfHint(hint: Hint, student: Student): Promise<Hint> {
+    hint.students = Promise.resolve([...(await hint.students), student]);
+    await this.hintRepository.save(hint);
+    return hint;
   }
 
   async saveFeeback(

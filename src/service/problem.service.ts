@@ -4,12 +4,7 @@ import { CreateProblemDto } from 'src/dto/create-problem';
 import { UpdateProblemDto } from 'src/dto/update-problem';
 import { Problem } from 'src/entity/problem.entity';
 import { LanguageType } from '../types';
-import {
-  DeleteResult,
-  FindOneOptions,
-  Repository,
-  UpdateResult,
-} from 'typeorm';
+import { FindOneOptions, Repository, UpdateResult } from 'typeorm';
 
 @Injectable()
 export class ProblemService {

@@ -16,9 +16,6 @@ export class UIConfig implements IUIConfig {
   })
   level?: number;
 
-  @Column()
-  more: boolean;
-
-  @Column()
-  feedback: boolean;
+  @Column({ nullable: true })
+  more?: boolean;
 }

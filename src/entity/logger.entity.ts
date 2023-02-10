@@ -23,6 +23,9 @@ export class Logger implements ILogger {
   })
   action: ActionType;
 
+  @Column()
+  submission: string;
+
   @ManyToOne(() => Hint, (h) => h.logs, { onDelete: 'CASCADE', lazy: true })
   hint: Promise<Hint>;
 

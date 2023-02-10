@@ -1,11 +1,16 @@
 export interface IHint {
   id: number;
   type: HintType;
-  prompt: string;
+  prompt?: string;
+  author: HintAuthorType;
   hint: string;
-  submission: string;
   feedback?: string;
   config: IUIConfig;
+}
+
+export enum HintAuthorType {
+  INSTRUCTOR = 'instructor',
+  OPENAI = 'openai',
 }
 
 export enum HintType {
@@ -18,6 +23,7 @@ export interface IStudent {
   uid: string;
   condition: ConditionType;
   btnText?: string;
+  btnColor?: string;
 }
 
 export enum ConditionType {
@@ -29,8 +35,7 @@ export interface IUIConfig {
   title: string;
   description: string;
   level?: DetailLevelType;
-  more: boolean;
-  feedback: boolean;
+  more?: boolean;
 }
 
 export enum DetailLevelType {
@@ -50,12 +55,14 @@ export interface IProblem {
 
 export enum LanguageType {
   SQL = 'sql',
+  PYTHON = 'python',
 }
 
 export interface ILogger {
   id: number;
   timestamp: Date;
   action: ActionType;
+  submission: string;
 }
 
 export enum ActionType {

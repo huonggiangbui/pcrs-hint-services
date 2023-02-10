@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { HINT_BUTTON_TEXT } from 'src/constants';
+import { HINT_BUTTON_COLOR, HINT_BUTTON_TEXT } from 'src/constants';
 import { Problem } from 'src/entity/problem.entity';
 import { Student } from 'src/entity/student.entity';
 import { ConditionType } from '../types';
@@ -10,7 +10,8 @@ import { Repository } from 'typeorm';
 type BasicStudentData = {
   uid: string;
   condition: ConditionType;
-  btnText: string;
+  btnText: string | null;
+  btnColor: string | null;
 };
 
 @Injectable()
@@ -39,19 +40,18 @@ export class StudentService {
   async handleExperiment(): Promise<{
     condition: ConditionType;
     btnText: string | null;
+    btnColor: string | null;
   }> {
     const condition = randomize([
       ConditionType.CONTROL,
       ConditionType.EXPERIMENT,
     ]);
     let btnText = null;
+    let btnColor = null;
     if (condition === ConditionType.EXPERIMENT) {
       btnText = randomize(HINT_BUTTON_TEXT);
+      btnColor = randomize(HINT_BUTTON_COLOR);
     }
-    return { condition, btnText };
-  }
-
-  async remove(students: Student[]) {
-    this.studentRepository.remove(students);
+    return { condition, btnText, btnColor };
   }
 }
