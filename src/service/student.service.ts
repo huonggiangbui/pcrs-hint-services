@@ -42,10 +42,10 @@ export class StudentService {
     btnText: string | null;
     btnColor: string | null;
   }> {
-    const condition = randomize([
-      ConditionType.CONTROL,
-      ConditionType.EXPERIMENT,
-    ]);
+    // random between 1 and 100 (inclusive). If the results is <= 25, then control condition. Otherwise, experiment condition.
+    const random = Math.floor(Math.random() * 100 + 1);
+    const condition =
+      random <= 25 ? ConditionType.CONTROL : ConditionType.EXPERIMENT;
     let btnText = null;
     let btnColor = null;
     if (condition === ConditionType.EXPERIMENT) {
