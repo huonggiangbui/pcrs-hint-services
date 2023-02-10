@@ -9,6 +9,9 @@ export const MORE_HINT_PROMPT_HEADERS = {
   "More edit suggestions to improve student's code:\n\n": HintType.CODE,
 };
 export const HINT_BUTTON_TEXT = ['Get a hint', 'Get a next step', 'Help'];
-export const HINT_BUTTON_COLOR = ['green'];
+export const HINT_BUTTON_COLOR = [
+  'linear-gradient(to bottom, #008000 0, #004d00 100%)',
+  '#3071a9',
+];
 export const HINT_TITLE = ['Your hint', 'Next step …'];
 export const HINT_DESCRIPTION = ['This is your hint'];
