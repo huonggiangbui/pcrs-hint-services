@@ -1,18 +1,18 @@
 import {
   Entity,
-  Index,
   Column,
   PrimaryGeneratedColumn,
   OneToMany,
   ManyToMany,
   JoinTable,
+  Unique,
 } from 'typeorm';
-import { IProblem, LanguageType } from 'src/types';
+import { IProblem, LanguageType } from '../types';
 import { Hint } from './hint.entity';
 import { Student } from './student.entity';
 
 @Entity()
-@Index(['pk', 'language'], { unique: true })
+@Unique(['pk', 'language'])
 export class Problem implements IProblem {
   @PrimaryGeneratedColumn()
   id: number;
@@ -42,9 +42,7 @@ export class Problem implements IProblem {
   @OneToMany(() => Hint, (h) => h.problem)
   hints: Promise<Hint[]>;
 
-  @ManyToMany(() => Student, (s) => s.problems, {
-    onDelete: 'SET NULL',
-  })
+  @ManyToMany(() => Student, (s) => s.problems)
   @JoinTable()
   students: Promise<Student[]>;
 }

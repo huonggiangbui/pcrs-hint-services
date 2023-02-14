@@ -11,7 +11,7 @@ import { CreateProblemDto } from 'src/dto/create-problem';
 import { UpdateProblemDto } from 'src/dto/update-problem';
 import { Problem } from 'src/entity/problem.entity';
 import { ProblemService } from 'src/service/problem.service';
-import { LanguageType } from 'src/types';
+import { LanguageType } from '../types';
 
 @Controller()
 export class ProblemController {
@@ -37,9 +37,10 @@ export class ProblemController {
   @Delete('problems/:language/:pk')
   async deleteProblem(
     @Param() params: { language: LanguageType; pk: string },
-    @Query() query,
-  ): Promise<unknown> {
+  ): Promise<Problem> {
     const { language, pk } = params;
-    return this.problemService.delete(language, pk);
+    const problem = await this.problemService.findByPk(pk, language);
+    await this.problemService.delete(problem);
+    return problem;
   }
 }

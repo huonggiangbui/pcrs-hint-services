@@ -4,8 +4,10 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   OneToMany,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
-import { IHint, HintType } from '../types';
+import { IHint, HintType, HintAuthorType } from '../types';
 import { UIConfig } from './Config';
 import { Student } from './student.entity';
 import { Problem } from './problem.entity';
@@ -16,9 +18,6 @@ export class Hint implements IHint {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Student, (s) => s.hints, { onDelete: 'CASCADE', lazy: true })
-  student: Promise<Student>;
-
   @Column({
     type: 'enum',
     enum: HintType,
@@ -26,14 +25,18 @@ export class Hint implements IHint {
   })
   type: HintType;
 
-  @Column()
-  prompt: string;
+  @Column({ nullable: true })
+  prompt?: string;
+
+  @Column({
+    type: 'enum',
+    enum: HintAuthorType,
+    default: HintAuthorType.INSTRUCTOR,
+  })
+  author: HintAuthorType;
 
   @Column()
   hint: string;
-
-  @Column()
-  submission: string;
 
   @Column({ nullable: true })
   feedback?: string;
@@ -41,7 +44,18 @@ export class Hint implements IHint {
   @Column(() => UIConfig)
   config: UIConfig;
 
-  @ManyToOne(() => Problem, (p) => p.hints, { onDelete: 'CASCADE', lazy: true })
+  @ManyToMany(() => Student, (s) => s.hints, {
+    onDelete: 'CASCADE',
+    lazy: true,
+  })
+  @JoinTable()
+  students: Promise<Student[]>;
+
+  @ManyToOne(() => Problem, (p) => p.hints, {
+    onDelete: 'CASCADE',
+    lazy: true,
+    cascade: true,
+  })
   problem: Promise<Problem>;
 
   @OneToMany(() => Logger, (l) => l.hint)

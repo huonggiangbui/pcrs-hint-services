@@ -3,13 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateProblemDto } from 'src/dto/create-problem';
 import { UpdateProblemDto } from 'src/dto/update-problem';
 import { Problem } from 'src/entity/problem.entity';
-import { LanguageType } from 'src/types';
-import {
-  DeleteResult,
-  FindOneOptions,
-  Repository,
-  UpdateResult,
-} from 'typeorm';
+import { LanguageType } from '../types';
+import { FindOneOptions, Repository, UpdateResult } from 'typeorm';
 
 @Injectable()
 export class ProblemService {
@@ -66,8 +61,7 @@ export class ProblemService {
     });
   }
 
-  async delete(language: LanguageType, pk: string): Promise<DeleteResult> {
-    const problem = await this.findByPk(pk, language);
-    return await this.problemRepository.delete(problem.id);
+  async delete(problem: Problem): Promise<Problem> {
+    return await this.problemRepository.remove(problem);
   }
 }

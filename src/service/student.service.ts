@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { HINT_BUTTON_TEXT } from 'src/constants';
+import { HINT_BUTTON_COLOR, HINT_BUTTON_TEXT } from 'src/constants';
 import { Problem } from 'src/entity/problem.entity';
 import { Student } from 'src/entity/student.entity';
-import { ConditionType, HintType } from 'src/types';
-import { NullDeciderType, randomize } from 'src/utils/randomize';
+import { ConditionType } from '../types';
+import { randomize } from 'src/utils/randomize';
 import { Repository } from 'typeorm';
 
 type BasicStudentData = {
   uid: string;
   condition: ConditionType;
-  btnText?: string;
+  btnText: string | null;
+  btnColor: string | null;
 };
 
 @Injectable()
@@ -26,32 +27,31 @@ export class StudentService {
     });
   }
 
-  async create(problem: Problem, data: BasicStudentData): Promise<Student> {
-    let student = await this.findOne(data);
-    if (!student) {
-      student = await this.studentRepository.create(data);
-      student.problems = Promise.resolve([problem]);
-      await this.studentRepository.save(student);
-    } else {
-      await this.updateProblem(student, problem);
-    }
+  async create(data: BasicStudentData): Promise<Student> {
+    const student = await this.studentRepository.create(data);
     return student;
   }
 
-  async updateProblem(student: Student, problem: Problem) {
+  async updateProblemOfStudent(student: Student, problem: Problem) {
     (await student.problems).push(problem);
     await this.studentRepository.save(student);
   }
 
   async handleExperiment(): Promise<{
     condition: ConditionType;
-    btnText?: string;
+    btnText: string | null;
+    btnColor: string | null;
   }> {
-    const condition = randomize(
-      [ConditionType.CONTROL, ConditionType.EXPERIMENT],
-      NullDeciderType.NO_NULL,
-    );
-    const btnText = randomize(HINT_BUTTON_TEXT, NullDeciderType.ALLOW_NULL);
-    return { condition, btnText };
+    // random between 1 and 100 (inclusive). If the results is <= 25, then control condition. Otherwise, experiment condition.
+    const random = Math.floor(Math.random() * 100 + 1);
+    const condition =
+      random <= 25 ? ConditionType.CONTROL : ConditionType.EXPERIMENT;
+    let btnText = null;
+    let btnColor = null;
+    if (condition === ConditionType.EXPERIMENT) {
+      btnText = randomize(HINT_BUTTON_TEXT);
+      btnColor = randomize(HINT_BUTTON_COLOR);
+    }
+    return { condition, btnText, btnColor };
   }
 }

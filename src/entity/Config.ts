@@ -2,11 +2,11 @@ import { Column } from 'typeorm';
 import { DetailLevelType, IUIConfig } from '../types';
 
 export class UIConfig implements IUIConfig {
-  @Column({ nullable: true })
-  title?: string;
+  @Column()
+  title: string;
 
-  @Column({ nullable: true })
-  description?: string;
+  @Column()
+  description: string;
 
   @Column({
     type: 'enum',
@@ -18,7 +18,4 @@ export class UIConfig implements IUIConfig {
 
   @Column({ nullable: true })
   more?: boolean;
-
-  @Column({ nullable: true })
-  feedback?: boolean;
 }
