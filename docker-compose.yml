@@ -8,8 +8,6 @@ services:
       POSTGRES_PASSWORD: adminpass
       POSTGRES_USER: pcrsadmin
       POSTGRES_DB: hintservice
-    ports:
-      - 5432:5432
     volumes:
       - db_data:/var/lib/postgresql/data
 
@@ -21,8 +19,6 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - 80:80
-      - 443:443
       - 3000:3000
     env_file:
       - .env
