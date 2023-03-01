@@ -16,6 +16,7 @@ import { OpenAiService } from './service/openai.service';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ormConfig } from 'ormconfig';
+import { Feedback } from './entity/feedback.entity';
 
 @Module({
   imports: [
@@ -26,7 +27,7 @@ import { ormConfig } from 'ormconfig';
       cache: true,
     }),
     TypeOrmModule.forRoot(ormConfig),
-    TypeOrmModule.forFeature([Hint, Problem, Student, Logger]),
+    TypeOrmModule.forFeature([Hint, Problem, Student, Logger, Feedback]),
   ],
   providers: [
     AppService,

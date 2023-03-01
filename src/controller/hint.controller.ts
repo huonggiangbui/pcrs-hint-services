@@ -74,8 +74,6 @@ export class HintController {
       params.language,
     );
 
-    const student = (await problem.students).filter((s) => s.uid === uid)[0];
-
     const hints = await this.hintService.findAllInstructorHints(problem);
 
     let hint = null;
@@ -107,8 +105,18 @@ export class HintController {
         author: HintAuthorType.OPENAI,
       });
     }
+    const student = await this.studentService.filterStudent(
+      await problem.students,
+      uid,
+    );
+    await this.hintService.updateStudentOfHint(hint, student);
 
-    return await this.hintService.updateStudentOfHint(hint, student);
+    delete hint['__students__'];
+    hint.feedback = (await hint.feedback).filter(
+      async (feedback) => (await feedback).student === student,
+    );
+
+    return hint;
   }
 
   @Post('hints/:language/:pk')
@@ -130,12 +138,17 @@ export class HintController {
   @Post('feedback/:id')
   async sendFeedback(
     @Param('id') id: number,
-    @Body() body: { feedback: string },
+    @Body() body: { uid: string; feedback: string },
   ): Promise<{
     message: string;
     showTextFeedback?: boolean;
   }> {
-    return await this.hintService.saveFeeback(id, body.feedback);
+    const hint = await this.hintService.findById(id);
+    const student = await this.studentService.filterStudent(
+      await hint.students,
+      body.uid,
+    );
+    return await this.hintService.saveFeedback(hint, student, body.feedback);
   }
 
   @Post('logging/:id')
@@ -144,12 +157,17 @@ export class HintController {
     @Body() body: CreateLogRecordDto,
   ): Promise<Logger> {
     const hint = await this.hintService.findById(id);
-    const student = (await hint.students).filter((s) => s.uid === body.uid)[0];
-    return await this.loggingService.create({
+    const student = await this.studentService.filterStudent(
+      await hint.students,
+      body.uid,
+    );
+    const logger = await this.loggingService.create({
       action: body.action,
       submission: body.submission,
       student,
       hint,
     });
+    delete logger['__hint__'];
+    return logger;
   }
 }

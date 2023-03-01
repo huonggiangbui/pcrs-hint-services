@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HINT_BUTTON_COLOR, HINT_BUTTON_TEXT } from 'src/constants';
 import { Problem } from 'src/entity/problem.entity';
@@ -25,6 +25,14 @@ export class StudentService {
     return await this.studentRepository.findOne({
       where: { ...data },
     });
+  }
+
+  async filterStudent(students: Student[], uid: string): Promise<Student> {
+    students = students.filter((s) => s.uid === uid);
+    if (!students || students.length === 0) {
+      throw new NotFoundException(`Student with uid ${uid} not found`);
+    }
+    return students[0];
   }
 
   async create(data: BasicStudentData): Promise<Student> {
