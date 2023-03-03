@@ -3,14 +3,13 @@ import {
   Column,
   OneToMany,
   ManyToMany,
-  JoinTable,
   PrimaryGeneratedColumn,
-  Unique,
 } from 'typeorm';
 import { ConditionType, IStudent } from '../types';
 import { Hint } from './hint.entity';
 import { Problem } from './problem.entity';
 import { Logger } from './logger.entity';
+import { Feedback } from './feedback.entity';
 
 @Entity()
 export class Student implements IStudent {
@@ -45,4 +44,7 @@ export class Student implements IStudent {
 
   @OneToMany(() => Logger, (p) => p.student)
   logs: Promise<Logger[]>;
+
+  @OneToMany(() => Feedback, (f) => f.student)
+  feedback: Promise<Feedback[]>;
 }

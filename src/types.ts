@@ -4,7 +4,6 @@ export interface IHint {
   prompt?: string;
   author: HintAuthorType;
   hint: string;
-  feedback?: string;
   config: IUIConfig;
 }
 
@@ -16,6 +15,18 @@ export enum HintAuthorType {
 export enum HintType {
   TEXT = 'text',
   CODE = 'code',
+}
+
+export interface IUIConfig {
+  title: string;
+  description: string;
+  level?: DetailLevelType;
+  more?: boolean;
+}
+
+export enum DetailLevelType {
+  BOTTOM_OUT = 1,
+  HIDDEN = 2,
 }
 
 export interface IStudent {
@@ -31,16 +42,9 @@ export enum ConditionType {
   EXPERIMENT = 'experiment',
 }
 
-export interface IUIConfig {
-  title: string;
-  description: string;
-  level?: DetailLevelType;
-  more?: boolean;
-}
-
-export enum DetailLevelType {
-  BOTTOM_OUT = 1,
-  HIDDEN = 2,
+export interface IFeedback {
+  likert_feedback: number;
+  text_feedback?: string;
 }
 
 export interface IProblem {

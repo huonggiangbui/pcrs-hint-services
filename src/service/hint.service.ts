@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Hint } from 'src/entity/hint.entity';
 import { FindOneOptions, Repository } from 'typeorm';
@@ -19,6 +19,7 @@ import {
 } from 'src/constants';
 import { randomize } from 'src/utils/randomize';
 import { OpenAIApi } from 'openai';
+import { Feedback } from 'src/entity/feedback.entity';
 
 type CreateHintData = {
   problem: Problem;
@@ -34,6 +35,8 @@ export class HintService {
   constructor(
     @InjectRepository(Hint)
     private hintRepository: Repository<Hint>,
+    @InjectRepository(Feedback)
+    private feedbackRepository: Repository<Feedback>,
   ) {}
 
   async findById(id: number, options?: FindOneOptions<Hint>): Promise<Hint> {
@@ -127,25 +130,41 @@ export class HintService {
     };
   }
 
-  async updateStudentOfHint(hint: Hint, student: Student): Promise<Hint> {
+  async updateStudentOfHint(hint: Hint, student: Student): Promise<void> {
     hint.students = Promise.resolve([...(await hint.students), student]);
     await this.hintRepository.save(hint);
-    return hint;
   }
 
-  async saveFeeback(
-    id: number,
+  async saveFeedback(
+    hint: Hint,
+    student: Student,
     feedback: string,
   ): Promise<{
     message: string;
     showTextFeedback?: boolean;
   }> {
-    const hint = await this.findById(id);
-    if (!hint.feedback) {
-      hint.feedback = '';
+    let feedback_entity;
+    const feedback_all = (await hint.feedback).filter(
+      async (feedback) => (await feedback.student) === student,
+    );
+
+    if (!feedback_all || feedback_all.length === 0) {
+      if (!parseInt(feedback))
+        throw new BadRequestException('Must submit numeric feedback first');
+      feedback_entity = await this.feedbackRepository.create({
+        likert_feedback: parseInt(feedback),
+      });
+      feedback_entity.student = Promise.resolve(student);
+      feedback_entity.hint = Promise.resolve(hint);
+    } else {
+      feedback_entity = feedback_all[0];
+      if (feedback_entity.text_feedback)
+        throw new BadRequestException(
+          'Can only submit feedback once, already submitted',
+        );
+      feedback_entity.text_feedback = feedback;
     }
-    hint.feedback = hint.feedback.concat(feedback, ',');
-    await this.hintRepository.save(hint);
+    await this.feedbackRepository.save(feedback_entity);
     const showTextFeedback = parseInt(feedback) < 3;
     return {
       message: 'Feedback received',

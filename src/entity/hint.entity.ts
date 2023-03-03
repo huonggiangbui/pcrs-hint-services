@@ -12,6 +12,7 @@ import { UIConfig } from './Config';
 import { Student } from './student.entity';
 import { Problem } from './problem.entity';
 import { Logger } from './logger.entity';
+import { Feedback } from './feedback.entity';
 
 @Entity()
 export class Hint implements IHint {
@@ -38,9 +39,6 @@ export class Hint implements IHint {
   @Column()
   hint: string;
 
-  @Column({ nullable: true })
-  feedback?: string;
-
   @Column(() => UIConfig)
   config: UIConfig;
 
@@ -60,4 +58,7 @@ export class Hint implements IHint {
 
   @OneToMany(() => Logger, (l) => l.hint)
   logs: Promise<Logger[]>;
+
+  @OneToMany(() => Feedback, (f) => f.hint)
+  feedback: Promise<Feedback[]>;
 }
