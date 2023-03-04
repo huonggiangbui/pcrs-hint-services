@@ -111,10 +111,10 @@ export class HintController {
     );
     await this.hintService.updateStudentOfHint(hint, student);
 
-    delete hint['__students__'];
     hint.feedback = (await hint.feedback).filter(
-      async (feedback) => (await feedback).student === student,
+      async (feedback) => (await feedback).student === student && (await feedback).hint === hint,
     );
+    delete hint['__students__'];
 
     return hint;
   }
