@@ -2,12 +2,6 @@ import { Column } from 'typeorm';
 import { DetailLevelType, IUIConfig } from '../types';
 
 export class UIConfig implements IUIConfig {
-  @Column()
-  title: string;
-
-  @Column()
-  description: string;
-
   @Column({
     type: 'enum',
     enum: DetailLevelType,

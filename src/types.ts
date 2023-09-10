@@ -18,8 +18,6 @@ export enum HintType {
 }
 
 export interface IUIConfig {
-  title: string;
-  description: string;
   level?: DetailLevelType;
   more?: boolean;
 }
@@ -58,7 +56,7 @@ export interface IProblem {
 }
 
 export enum LanguageType {
-  SQL = 'sql',
+  PYTHON = 'python',
 }
 
 export interface ILogger {
