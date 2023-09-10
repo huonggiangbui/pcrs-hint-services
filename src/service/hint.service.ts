@@ -11,12 +11,7 @@ import {
 import { Student } from 'src/entity/student.entity';
 import { Problem } from 'src/entity/problem.entity';
 import { UIConfig } from 'src/entity/Config';
-import {
-  HINT_DESCRIPTION,
-  HINT_TITLE,
-  MORE_HINT_PROMPT_HEADERS,
-  PROMPT_HEADERS,
-} from 'src/constants';
+import { MORE_HINT_PROMPT_HEADERS, PROMPT_HEADERS } from 'src/constants';
 import { randomize } from 'src/utils/randomize';
 import { OpenAIApi } from 'openai';
 import { Feedback } from 'src/entity/feedback.entity';
@@ -26,8 +21,9 @@ type CreateHintData = {
   prompt?: string;
   hint: string;
   type: HintType;
-  level?: number;
   author: HintAuthorType;
+  level?: number;
+  more?: boolean;
 };
 
 @Injectable()
@@ -53,35 +49,21 @@ export class HintService {
   }
 
   async create(data: CreateHintData): Promise<Hint> {
-    const { problem, type, author, ...others } = data;
-    const config = await this.experimentUIConfig(type, author);
-    if (author === HintAuthorType.INSTRUCTOR) {
+    const { problem, ...others } = data;
+    const config = {} as UIConfig;
+    if (data.author === HintAuthorType.INSTRUCTOR) {
       config.level = data.level;
+      config.more = data.more;
+    } else {
+      if (data.type === HintType.TEXT) {
+        config.level = randomize(Object.values(DetailLevelType));
+      }
+      config.more = randomize([true, false]);
     }
-    const hint = await this.hintRepository.create({
-      ...others,
-      config,
-    });
+    const hint = await this.hintRepository.create(others);
     hint.problem = Promise.resolve(problem);
     await this.hintRepository.save(hint);
     return hint;
-  }
-
-  async experimentUIConfig(
-    type: HintType,
-    author: HintAuthorType,
-  ): Promise<UIConfig> {
-    const title = randomize(HINT_TITLE);
-    const description = randomize(HINT_DESCRIPTION);
-    let level = null;
-    let more = null;
-    if (author !== HintAuthorType.INSTRUCTOR) {
-      if (type === HintType.TEXT) {
-        level = randomize([DetailLevelType.BOTTOM_OUT, DetailLevelType.HIDDEN]);
-      }
-      more = randomize([true, false]);
-    }
-    return { title, description, level, more };
   }
 
   async generateAutomaticHint(

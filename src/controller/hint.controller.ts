@@ -25,6 +25,23 @@ export class HintController {
     private readonly loggingService: LoggingService,
   ) {}
 
+  @Post('hints/:language/:pk')
+  async postHint(
+    @Param() params: { language: LanguageType; pk: string },
+    @Body()
+    body: { hint: string; type: HintType; level?: number; more?: boolean },
+  ): Promise<Hint> {
+    const problem = await this.problemService.findByPk(
+      params.pk,
+      params.language,
+    );
+    return await this.hintService.create({
+      ...body,
+      problem,
+      author: HintAuthorType.INSTRUCTOR,
+    });
+  }
+
   @Get('config/:language/:pk')
   async getConfig(
     @Param() params: { language: LanguageType; pk: string },
@@ -38,7 +55,9 @@ export class HintController {
     let student;
     const students = (await problem.students).filter((s) => s.uid === uid);
 
-    if (!students || students.length === 0) {
+    if (students && students.length > 0) {
+      student = students[0];
+    } else {
       const config = await this.studentService.handleExperiment();
       student = await this.studentService.findOne({
         uid,
@@ -51,8 +70,6 @@ export class HintController {
         });
       }
       await this.studentService.updateProblemOfStudent(student, problem);
-    } else {
-      student = students[0];
     }
 
     return student;
@@ -80,31 +97,33 @@ export class HintController {
     if (hints.length > 0) {
       hint = randomize(hints);
     } else {
-      const context = `${problem.language} problem: ${problem.name}\n\n${
-        problem.description
-      }\n\n${
-        problem.starter_code
-          ? 'Starter code:\n' + problem.starter_code + '\n\n'
-          : ''
-      }'${problem.solution ? 'Solution:\n' + problem.solution + '\n\n' : ''}`;
+      return null;
+      // const context = `${problem.language} problem: ${problem.name}\n\n${
+      //   problem.description
+      // }\n\n${
+      //   problem.starter_code
+      //     ? 'Starter code:\n' + problem.starter_code + '\n\n'
+      //     : ''
+      // }'${problem.solution ? 'Solution:\n' + problem.solution + '\n\n' : ''}`;
 
-      const { hintContent, prompt, type } =
-        await this.hintService.generateAutomaticHint(
-          OpenAiService.getInstance().openai,
-          problem.language,
-          context,
-          submission,
-          prevHint,
-        );
+      // const { hintContent, prompt, type } =
+      //   await this.hintService.generateAutomaticHint(
+      //     OpenAiService.getInstance().openai,
+      //     problem.language,
+      //     context,
+      //     submission,
+      //     prevHint,
+      //   );
 
-      hint = await this.hintService.create({
-        problem,
-        prompt,
-        hint: hintContent,
-        type,
-        author: HintAuthorType.OPENAI,
-      });
+      // hint = await this.hintService.create({
+      //   problem,
+      //   prompt,
+      //   hint: hintContent,
+      //   type,
+      //   author: HintAuthorType.OPENAI,
+      // });
     }
+
     const student = await this.studentService.filterStudent(
       await problem.students,
       uid,
@@ -117,22 +136,6 @@ export class HintController {
     );
 
     return hint;
-  }
-
-  @Post('hints/:language/:pk')
-  async postHint(
-    @Param() params: { language: LanguageType; pk: string },
-    @Body() body: { hint: string; type: HintType; level: number },
-  ): Promise<Hint> {
-    const problem = await this.problemService.findByPk(
-      params.pk,
-      params.language,
-    );
-    return await this.hintService.create({
-      ...body,
-      problem,
-      author: HintAuthorType.INSTRUCTOR,
-    });
   }
 
   @Post('feedback/:id')
