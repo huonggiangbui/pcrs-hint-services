@@ -23,7 +23,7 @@ export class Problem implements IProblem {
   @Column({
     type: 'enum',
     enum: LanguageType,
-    default: LanguageType.SQL,
+    default: LanguageType.PYTHON,
   })
   language: LanguageType;
 
