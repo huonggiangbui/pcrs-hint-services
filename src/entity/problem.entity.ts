@@ -28,10 +28,16 @@ export class Problem implements IProblem {
   language: LanguageType;
 
   @Column()
-  name: string;
+  typeExperiment: boolean;
 
-  @Column()
-  description: string;
+  @Column({ nullable: true })
+  crossover?: boolean;
+
+  @Column({ nullable: true })
+  name?: string;
+
+  @Column({ nullable: true })
+  description?: string;
 
   @Column({ nullable: true })
   solution?: string;

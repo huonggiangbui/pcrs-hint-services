@@ -5,11 +5,12 @@ import {
   ManyToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { ConditionType, IStudent } from '../types';
+import { IStudent } from '../types';
 import { Hint } from './hint.entity';
 import { Problem } from './problem.entity';
 import { Logger } from './logger.entity';
 import { Feedback } from './feedback.entity';
+import { ConditionType } from './ConditionType';
 
 @Entity()
 export class Student implements IStudent {
@@ -19,17 +20,16 @@ export class Student implements IStudent {
   @Column()
   uid: string;
 
-  @Column({
-    type: 'enum',
-    enum: ConditionType,
-    default: ConditionType.CONTROL,
-  })
+  @Column(() => ConditionType)
   condition: ConditionType;
 
-  @Column({ nullable: true })
+  @Column({ default: 'Help', nullable: true })
   btnText?: string;
 
-  @Column({ nullable: true })
+  @Column({
+    default: '#002A5C',
+    nullable: true,
+  })
   btnColor?: string;
 
   @ManyToMany(() => Hint, (h) => h.students, {

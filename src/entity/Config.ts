@@ -1,15 +1,12 @@
 import { Column } from 'typeorm';
-import { DetailLevelType, IUIConfig } from '../types';
+import { DetailLevelType, IConfig } from '../types';
 
-export class UIConfig implements IUIConfig {
+export class Config implements IConfig {
   @Column({
     type: 'enum',
     enum: DetailLevelType,
     default: DetailLevelType.BOTTOM_OUT,
     nullable: true,
   })
-  level?: number;
-
-  @Column({ nullable: true })
-  more?: boolean;
+  level?: DetailLevelType;
 }

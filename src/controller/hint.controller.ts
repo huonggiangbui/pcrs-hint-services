@@ -1,13 +1,20 @@
-import { Body, Controller, Query, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Query,
+  Get,
+  Param,
+  Post,
+  Delete,
+} from '@nestjs/common';
 import { Hint } from 'src/entity/hint.entity';
 import { Student } from 'src/entity/student.entity';
 import { Logger } from 'src/entity/logger.entity';
 import { HintService } from 'src/service/hint.service';
 import { LoggingService } from 'src/service/logging.service';
-import { OpenAiService } from 'src/service/openai.service';
 import { ProblemService } from 'src/service/problem.service';
 import { StudentService } from 'src/service/student.service';
-import { HintAuthorType, HintType, LanguageType } from '../types';
+import { DetailLevelType, HintType, LanguageType } from '../types';
 import { CreateLogRecordDto } from 'src/dto/logging';
 import { randomize } from 'src/utils/randomize';
 
@@ -29,7 +36,12 @@ export class HintController {
   async postHint(
     @Param() params: { language: LanguageType; pk: string },
     @Body()
-    body: { hint: string; type: HintType; level?: number; more?: boolean },
+    body: {
+      hint: string;
+      type: HintType;
+      level?: DetailLevelType;
+      more?: boolean;
+    },
   ): Promise<Hint> {
     const problem = await this.problemService.findByPk(
       params.pk,
@@ -38,7 +50,6 @@ export class HintController {
     return await this.hintService.create({
       ...body,
       problem,
-      author: HintAuthorType.INSTRUCTOR,
     });
   }
 
@@ -58,15 +69,15 @@ export class HintController {
     if (students && students.length > 0) {
       student = students[0];
     } else {
-      const config = await this.studentService.handleExperiment();
+      const condition = await this.studentService.handleExperiment();
       student = await this.studentService.findOne({
         uid,
-        ...config,
+        condition,
       });
       if (!student) {
         student = await this.studentService.create({
           uid,
-          ...config,
+          condition,
         });
       }
       await this.studentService.updateProblemOfStudent(student, problem);
@@ -91,38 +102,12 @@ export class HintController {
       params.language,
     );
 
-    const hints = await this.hintService.findAllInstructorHints(problem);
+    const hints = await problem.hints;
 
-    let hint = null;
     if (hints.length > 0) {
-      hint = randomize(hints);
-    } else {
       return null;
-      // const context = `${problem.language} problem: ${problem.name}\n\n${
-      //   problem.description
-      // }\n\n${
-      //   problem.starter_code
-      //     ? 'Starter code:\n' + problem.starter_code + '\n\n'
-      //     : ''
-      // }'${problem.solution ? 'Solution:\n' + problem.solution + '\n\n' : ''}`;
-
-      // const { hintContent, prompt, type } =
-      //   await this.hintService.generateAutomaticHint(
-      //     OpenAiService.getInstance().openai,
-      //     problem.language,
-      //     context,
-      //     submission,
-      //     prevHint,
-      //   );
-
-      // hint = await this.hintService.create({
-      //   problem,
-      //   prompt,
-      //   hint: hintContent,
-      //   type,
-      //   author: HintAuthorType.OPENAI,
-      // });
     }
+    const hint = randomize(hints);
 
     const student = await this.studentService.filterStudent(
       await problem.students,
@@ -136,6 +121,18 @@ export class HintController {
     );
 
     return hint;
+  }
+
+  @Delete('hints/:language/:pk')
+  async deleteAllHintsProblem(
+    @Param() params: { language: LanguageType; pk: string },
+  ): Promise<void> {
+    const problem = await this.problemService.findByPk(
+      params.pk,
+      params.language,
+    );
+    const hints = await problem.hints;
+    return await this.hintService.deleteAll(hints);
   }
 
   @Post('feedback/:id')

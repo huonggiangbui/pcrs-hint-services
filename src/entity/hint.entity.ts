@@ -7,8 +7,8 @@ import {
   ManyToMany,
   JoinTable,
 } from 'typeorm';
-import { IHint, HintType, HintAuthorType } from '../types';
-import { UIConfig } from './Config';
+import { IHint, HintType } from '../types';
+import { Config } from './Config';
 import { Student } from './student.entity';
 import { Problem } from './problem.entity';
 import { Logger } from './logger.entity';
@@ -19,6 +19,9 @@ export class Hint implements IHint {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column()
+  hint: string;
+
   @Column({
     type: 'enum',
     enum: HintType,
@@ -26,21 +29,14 @@ export class Hint implements IHint {
   })
   type: HintType;
 
+  @Column(() => Config)
+  config: Config;
+
   @Column({ nullable: true })
-  prompt?: string;
+  prev?: number;
 
-  @Column({
-    type: 'enum',
-    enum: HintAuthorType,
-    default: HintAuthorType.INSTRUCTOR,
-  })
-  author: HintAuthorType;
-
-  @Column()
-  hint: string;
-
-  @Column(() => UIConfig)
-  config: UIConfig;
+  @Column({ nullable: true })
+  next?: number;
 
   @ManyToMany(() => Student, (s) => s.hints, {
     onDelete: 'CASCADE',

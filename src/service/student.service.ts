@@ -1,17 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { HINT_BUTTON_COLOR, HINT_BUTTON_TEXT } from 'src/constants';
 import { Problem } from 'src/entity/problem.entity';
 import { Student } from 'src/entity/student.entity';
-import { ConditionType } from '../types';
-import { randomize } from 'src/utils/randomize';
+import { HintType, IConditionType, VisibilityConditionType } from '../types';
 import { Repository } from 'typeorm';
 
 type BasicStudentData = {
   uid: string;
-  condition: ConditionType;
-  btnText: string | null;
-  btnColor: string | null;
+  condition: IConditionType;
 };
 
 @Injectable()
@@ -45,21 +41,15 @@ export class StudentService {
     await this.studentRepository.save(student);
   }
 
-  async handleExperiment(): Promise<{
-    condition: ConditionType;
-    btnText: string | null;
-    btnColor: string | null;
-  }> {
+  async handleExperiment(): Promise<IConditionType> {
     // random between 1 and 100 (inclusive). If the results is <= 25, then control condition. Otherwise, experiment condition.
-    const random = Math.floor(Math.random() * 100 + 1);
-    const condition =
-      random <= 25 ? ConditionType.CONTROL : ConditionType.EXPERIMENT;
-    let btnText = null;
-    let btnColor = null;
-    if (condition === ConditionType.EXPERIMENT) {
-      btnText = randomize(HINT_BUTTON_TEXT);
-      btnColor = randomize(HINT_BUTTON_COLOR);
-    }
-    return { condition, btnText, btnColor };
+    const visibility =
+      Math.floor(Math.random() * 100 + 1) <= 25
+        ? VisibilityConditionType.CONTROL
+        : VisibilityConditionType.EXPERIMENT;
+    const type =
+      Math.floor(Math.random() * 100 + 1) <= 50 ? HintType.TEXT : HintType.CODE;
+
+    return { visibility, type };
   }
 }

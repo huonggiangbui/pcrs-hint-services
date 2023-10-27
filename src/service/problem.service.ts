@@ -30,35 +30,24 @@ export class ProblemService {
     language: LanguageType,
     data: CreateProblemDto,
   ): Promise<Problem> {
-    const { pk, name, description, starter_code, solution } = data;
+    if (this.findByPk(data.pk, language)) {
+      throw new Error('Problem already exists');
+    }
 
-    const problem = this.problemRepository.create({
-      pk,
-      language,
-      name,
-      description,
-      starter_code,
-      solution,
-    });
+    const problem = this.problemRepository.create(data);
 
     await this.problemRepository.save(problem);
 
     return problem;
   }
 
-  async update(
+  async updateProblem(
     language: LanguageType,
     pk: string,
     data: UpdateProblemDto,
   ): Promise<UpdateResult> {
     const problem = await this.findByPk(pk, language);
-    const { name, description, starter_code, solution } = data;
-    return await this.problemRepository.update(problem.id, {
-      name,
-      description,
-      starter_code,
-      solution,
-    });
+    return await this.problemRepository.update(problem.id, data);
   }
 
   async delete(problem: Problem): Promise<Problem> {

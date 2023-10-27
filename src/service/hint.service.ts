@@ -2,28 +2,17 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Hint } from 'src/entity/hint.entity';
 import { FindOneOptions, Repository } from 'typeorm';
-import {
-  DetailLevelType,
-  HintAuthorType,
-  HintType,
-  LanguageType,
-} from '../types';
+import { DetailLevelType, HintType } from '../types';
 import { Student } from 'src/entity/student.entity';
 import { Problem } from 'src/entity/problem.entity';
-import { UIConfig } from 'src/entity/Config';
-import { MORE_HINT_PROMPT_HEADERS, PROMPT_HEADERS } from 'src/constants';
-import { randomize } from 'src/utils/randomize';
-import { OpenAIApi } from 'openai';
+import { Config } from 'src/entity/Config';
 import { Feedback } from 'src/entity/feedback.entity';
 
 type CreateHintData = {
   problem: Problem;
-  prompt?: string;
   hint: string;
   type: HintType;
-  author: HintAuthorType;
-  level?: number;
-  more?: boolean;
+  level?: DetailLevelType;
 };
 
 @Injectable()
@@ -42,79 +31,70 @@ export class HintService {
     });
   }
 
-  async findAllInstructorHints(problem: Problem): Promise<Hint[]> {
-    return (await problem.hints).filter(
-      (hint) => hint.author === HintAuthorType.INSTRUCTOR,
-    );
-  }
-
   async create(data: CreateHintData): Promise<Hint> {
     const { problem, ...others } = data;
-    const config = {} as UIConfig;
-    if (data.author === HintAuthorType.INSTRUCTOR) {
-      config.level = data.level;
-      config.more = data.more;
-    } else {
-      if (data.type === HintType.TEXT) {
-        config.level = randomize(Object.values(DetailLevelType));
-      }
-      config.more = randomize([true, false]);
-    }
+    const config = {} as Config;
+    config.level = data.level;
     const hint = await this.hintRepository.create(others);
     hint.problem = Promise.resolve(problem);
+    hint.config = config;
     await this.hintRepository.save(hint);
     return hint;
   }
 
-  async generateAutomaticHint(
-    openai: OpenAIApi,
-    language: LanguageType,
-    context: string,
-    submission: string,
-    prevHint?: number,
-  ): Promise<{
-    hintContent: string;
-    prompt: string;
-    type: HintType;
-  }> {
-    let promptHeader;
-    let prompt;
+  // async generateAutomaticHint(
+  //   openai: OpenAIApi,
+  //   language: LanguageType,
+  //   context: string,
+  //   submission: string,
+  //   prevHint?: number,
+  // ): Promise<{
+  //   hintContent: string;
+  //   prompt: string;
+  //   type: HintType;
+  // }> {
+  //   let promptHeader;
+  //   let prompt;
 
-    if (!prevHint) {
-      promptHeader = randomize(Object.entries(PROMPT_HEADERS));
-      prompt = `${context}Student's code:\n\n${submission.slice(
-        40,
-        -41,
-      )}\n\n## ${language}\n\n${promptHeader[0]}`;
-    } else {
-      const oldHint = this.findById(prevHint);
-      promptHeader = randomize(Object.entries(MORE_HINT_PROMPT_HEADERS));
-      prompt = `${context}${(await oldHint).prompt}${
-        (await oldHint).hint
-      }\n\n## ${language}\n\n${promptHeader[0]}`;
-    }
+  //   if (!prevHint) {
+  //     promptHeader = randomize(Object.entries(PROMPT_HEADERS));
+  //     prompt = `${context}Student's code:\n\n${submission.slice(
+  //       40,
+  //       -41,
+  //     )}\n\n## ${language}\n\n${promptHeader[0]}`;
+  //   } else {
+  //     const oldHint = this.findById(prevHint);
+  //     promptHeader = randomize(Object.entries(MORE_HINT_PROMPT_HEADERS));
+  //     prompt = `${context}${(await oldHint).prompt}${
+  //       (await oldHint).hint
+  //     }\n\n## ${language}\n\n${promptHeader[0]}`;
+  //   }
 
-    const response = await openai.createCompletion({
-      model: 'code-davinci-002',
-      prompt: prompt,
-      temperature: 0,
-      max_tokens: 256,
-      top_p: 1,
-      frequency_penalty: 0,
-      presence_penalty: 0,
-      stop: ['Problem', 'Example', 'Solution', language],
-    });
+  //   const response = await openai.createCompletion({
+  //     model: 'code-davinci-002',
+  //     prompt: prompt,
+  //     temperature: 0,
+  //     max_tokens: 256,
+  //     top_p: 1,
+  //     frequency_penalty: 0,
+  //     presence_penalty: 0,
+  //     stop: ['Problem', 'Example', 'Solution', language],
+  //   });
 
-    return {
-      hintContent: response.data.choices[0].text,
-      prompt: promptHeader[0],
-      type: promptHeader[1],
-    };
-  }
+  //   return {
+  //     hintContent: response.data.choices[0].text,
+  //     prompt: promptHeader[0],
+  //     type: promptHeader[1],
+  //   };
+  // }
 
   async updateStudentOfHint(hint: Hint, student: Student): Promise<void> {
     hint.students = Promise.resolve([...(await hint.students), student]);
     await this.hintRepository.save(hint);
+  }
+
+  async deleteAll(hints: Hint[]): Promise<void> {
+    await this.hintRepository.remove(hints);
   }
 
   async saveFeedback(
