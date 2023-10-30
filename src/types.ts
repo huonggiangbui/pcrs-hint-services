@@ -25,8 +25,6 @@ export interface IStudent {
   id: number;
   uid: string;
   condition: IConditionType;
-  btnText?: string;
-  btnColor?: string;
 }
 
 export interface IConditionType {

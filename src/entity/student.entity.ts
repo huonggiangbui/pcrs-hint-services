@@ -23,15 +23,6 @@ export class Student implements IStudent {
   @Column(() => ConditionType)
   condition: ConditionType;
 
-  @Column({ default: 'Help', nullable: true })
-  btnText?: string;
-
-  @Column({
-    default: '#002A5C',
-    nullable: true,
-  })
-  btnColor?: string;
-
   @ManyToMany(() => Hint, (h) => h.students, {
     cascade: true,
   })
