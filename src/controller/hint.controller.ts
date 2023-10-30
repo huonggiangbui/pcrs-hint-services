@@ -11,21 +11,13 @@ import {
 } from '@nestjs/common';
 import { Hint } from 'src/entity/hint.entity';
 import { Student } from 'src/entity/student.entity';
-import { Logger as CustomLogEntity } from 'src/entity/logger.entity';
 import { HintService } from 'src/service/hint.service';
-import { LoggingService } from 'src/service/logging.service';
 import { ProblemService } from 'src/service/problem.service';
 import { StudentService } from 'src/service/student.service';
 import { LanguageType } from '../types';
-import { CreateLogRecordDto } from 'src/dto/logging';
 import { randomize } from 'src/utils/randomize';
 import { HintDto } from 'src/dto/hint';
 import { UpdateResult } from 'typeorm';
-
-enum Hook {
-  ON_SETUP = 'on-setup',
-  ON_SUBMIT = 'on-submit',
-}
 
 @Controller()
 export class HintController {
@@ -33,7 +25,6 @@ export class HintController {
     private readonly hintService: HintService,
     private readonly problemService: ProblemService,
     private readonly studentService: StudentService,
-    private readonly loggingService: LoggingService,
   ) {}
 
   @Post('hints/:language/:pk')
@@ -214,25 +205,5 @@ export class HintController {
       body.uid,
     );
     return await this.hintService.saveFeedback(hint, student, body.feedback);
-  }
-
-  @Post('logging/:id')
-  async logActivity(
-    @Param('id') id: number,
-    @Body() body: CreateLogRecordDto,
-  ): Promise<CustomLogEntity> {
-    const hint = await this.hintService.findById(id);
-    const student = await this.studentService.filterStudent(
-      await hint.students,
-      body.uid,
-    );
-    const logger = await this.loggingService.create({
-      action: body.action,
-      submission: body.submission,
-      student,
-      hint,
-    });
-    delete logger['__hint__'];
-    return logger;
   }
 }

@@ -17,6 +17,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ormConfig } from 'ormconfig';
 import { Feedback } from './entity/feedback.entity';
+import { LoggingController } from './controller/logging.controller';
 
 @Module({
   imports: [
@@ -37,6 +38,11 @@ import { Feedback } from './entity/feedback.entity';
     LoggingService,
     OpenAiService,
   ],
-  controllers: [AppController, HintController, ProblemController],
+  controllers: [
+    AppController,
+    HintController,
+    ProblemController,
+    LoggingController,
+  ],
 })
 export class AppModule {}
