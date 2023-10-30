@@ -38,7 +38,7 @@ export enum VisibilityConditionType {
 }
 
 export interface IFeedback {
-  likert_feedback: number;
+  likert_feedbac?: number;
   text_feedback?: string;
 }
 

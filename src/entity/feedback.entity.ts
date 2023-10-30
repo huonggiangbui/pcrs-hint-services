@@ -27,8 +27,8 @@ export class Feedback implements IFeedback {
   })
   student: Promise<Student>;
 
-  @Column()
-  likert_feedback: number;
+  @Column({ nullable: true })
+  likert_feedback?: number;
 
   @Column({ nullable: true })
   text_feedback?: string;
