@@ -1,19 +1,11 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Hint } from 'src/entity/hint.entity';
-import { FindOneOptions, Repository } from 'typeorm';
-import { DetailLevelType, HintType } from '../types';
+import { FindOneOptions, Repository, UpdateResult } from 'typeorm';
 import { Student } from 'src/entity/student.entity';
 import { Problem } from 'src/entity/problem.entity';
-import { Config } from 'src/entity/Config';
 import { Feedback } from 'src/entity/feedback.entity';
-
-type CreateHintData = {
-  problem: Problem;
-  hint: string;
-  type: HintType;
-  level?: DetailLevelType;
-};
+import { HintDto } from 'src/dto/hint';
 
 @Injectable()
 export class HintService {
@@ -31,62 +23,32 @@ export class HintService {
     });
   }
 
-  async create(data: CreateHintData): Promise<Hint> {
-    const { problem, ...others } = data;
-    const config = {} as Config;
-    config.level = data.level;
-    const hint = await this.hintRepository.create(others);
+  async findHeadHints(problem: Problem): Promise<Hint[]> {
+    const hints = await problem.hints;
+    return hints.filter((hint) => !hint.prev);
+  }
+
+  async create(problem: Problem, data: HintDto): Promise<Hint> {
+    const hint = await this.hintRepository.create(data);
     hint.problem = Promise.resolve(problem);
-    hint.config = config;
     await this.hintRepository.save(hint);
+
+    if (data.prev) {
+      const prevHint = await this.findById(data.prev);
+      prevHint.next = hint.id;
+      await this.hintRepository.save(prevHint);
+    }
+
     return hint;
   }
 
-  // async generateAutomaticHint(
-  //   openai: OpenAIApi,
-  //   language: LanguageType,
-  //   context: string,
-  //   submission: string,
-  //   prevHint?: number,
-  // ): Promise<{
-  //   hintContent: string;
-  //   prompt: string;
-  //   type: HintType;
-  // }> {
-  //   let promptHeader;
-  //   let prompt;
+  async update(id: number, data: HintDto): Promise<UpdateResult> {
+    return await this.hintRepository.update(id, data);
+  }
 
-  //   if (!prevHint) {
-  //     promptHeader = randomize(Object.entries(PROMPT_HEADERS));
-  //     prompt = `${context}Student's code:\n\n${submission.slice(
-  //       40,
-  //       -41,
-  //     )}\n\n## ${language}\n\n${promptHeader[0]}`;
-  //   } else {
-  //     const oldHint = this.findById(prevHint);
-  //     promptHeader = randomize(Object.entries(MORE_HINT_PROMPT_HEADERS));
-  //     prompt = `${context}${(await oldHint).prompt}${
-  //       (await oldHint).hint
-  //     }\n\n## ${language}\n\n${promptHeader[0]}`;
-  //   }
-
-  //   const response = await openai.createCompletion({
-  //     model: 'code-davinci-002',
-  //     prompt: prompt,
-  //     temperature: 0,
-  //     max_tokens: 256,
-  //     top_p: 1,
-  //     frequency_penalty: 0,
-  //     presence_penalty: 0,
-  //     stop: ['Problem', 'Example', 'Solution', language],
-  //   });
-
-  //   return {
-  //     hintContent: response.data.choices[0].text,
-  //     prompt: promptHeader[0],
-  //     type: promptHeader[1],
-  //   };
-  // }
+  async delete(hint: Hint): Promise<Hint> {
+    return await this.hintRepository.remove(hint);
+  }
 
   async updateStudentOfHint(hint: Hint, student: Student): Promise<void> {
     hint.students = Promise.resolve([...(await hint.students), student]);
