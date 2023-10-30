@@ -31,7 +31,8 @@ export class ProblemController {
     @Body() body: UpdateProblemDto,
   ) {
     const { language, pk } = params;
-    return this.problemService.updateProblem(language, pk, body);
+    const problem = await this.problemService.findByPk(pk, language);
+    return this.problemService.updateProblem(problem, body);
   }
 
   @Delete('problems/:language/:pk')

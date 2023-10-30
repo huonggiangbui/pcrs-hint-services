@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateProblemDto } from 'src/dto/create-problem';
 import { UpdateProblemDto } from 'src/dto/update-problem';
@@ -18,7 +18,7 @@ export class ProblemService {
     language: LanguageType,
     options?: FindOneOptions<Problem>,
   ): Promise<Problem> {
-    const problem = await this.problemRepository.findOne({
+    const problem = await this.problemRepository.findOneOrFail({
       where: { pk, language },
       ...options,
     });
@@ -30,14 +30,10 @@ export class ProblemService {
     language: LanguageType,
     data: CreateProblemDto,
   ): Promise<Problem> {
-    if (this.findByPk(data.pk, language)) {
-      Logger.error(
-        `Problem with pk ${data.pk} in programming language ${language} already exists`,
-      );
-      return null;
-    }
-
-    const problem = this.problemRepository.create(data);
+    const problem = this.problemRepository.create({
+      ...data,
+      language: language,
+    });
 
     await this.problemRepository.save(problem);
 
@@ -45,11 +41,9 @@ export class ProblemService {
   }
 
   async updateProblem(
-    language: LanguageType,
-    pk: string,
+    problem: Problem,
     data: UpdateProblemDto,
   ): Promise<UpdateResult> {
-    const problem = await this.findByPk(pk, language);
     return await this.problemRepository.update(problem.id, data);
   }
 
