@@ -27,8 +27,8 @@ export class Problem implements IProblem {
   })
   language: LanguageType;
 
-  @Column()
-  typeExperiment: boolean;
+  @Column({ nullable: true })
+  typeExperiment?: boolean;
 
   @Column({ nullable: true })
   crossover?: boolean;

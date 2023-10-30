@@ -48,7 +48,7 @@ export interface IProblem {
   id: number;
   pk: string;
   language: LanguageType;
-  typeExperiment: boolean;
+  typeExperiment?: boolean;
   crossover?: boolean;
   name?: string;
   description?: string;
