@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post } from '@nestjs/common';
+import { Body, Controller, Logger, Param, Post } from '@nestjs/common';
 import { CreateLogRecordDto } from 'src/dto/logging';
 import { Logger as CustomLogEntity } from 'src/entity/logger.entity';
 import { HintService } from 'src/service/hint.service';
@@ -23,6 +23,13 @@ export class LoggingController {
       await hint.students,
       body.uid,
     );
+    if (!student || !hint) {
+      Logger.error(
+        `Student with id ${body.uid} or hint with id ${id} not found`,
+      );
+      return null;
+    }
+
     const logger = await this.loggingService.create({
       action: body.action,
       submission: body.submission,

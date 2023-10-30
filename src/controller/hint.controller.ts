@@ -190,20 +190,4 @@ export class HintController {
 
     return student;
   }
-
-  @Post('feedback/:id')
-  async sendFeedback(
-    @Param('id') id: number,
-    @Body() body: { uid: string; feedback: string },
-  ): Promise<{
-    message: string;
-    showTextFeedback?: boolean;
-  }> {
-    const hint = await this.hintService.findById(id);
-    const student = await this.studentService.filterStudent(
-      await hint.students,
-      body.uid,
-    );
-    return await this.hintService.saveFeedback(hint, student, body.feedback);
-  }
 }
