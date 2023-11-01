@@ -13,13 +13,18 @@ export class LoggingService {
   ) {}
 
   async create(
-    submission: string,
+    body: { submission: string; revealed?: string },
     hint: Hint,
     student: Student,
   ): Promise<Logger> {
+    let revealed = null;
+    if (body.revealed) {
+      revealed = body.revealed === 'true';
+    }
     const logger = await this.loggingRepository.create({
       timestamp: new Date(),
-      submission: submission,
+      submission: body.submission,
+      revealed: revealed,
     });
     logger.hint = Promise.resolve(hint);
     logger.student = Promise.resolve(student);
