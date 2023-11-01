@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateProblemDto } from 'src/dto/create-problem';
 import { UpdateProblemDto } from 'src/dto/update-problem';
 import { Problem } from 'src/entity/problem.entity';
 import { LanguageType } from '../types';
@@ -18,27 +17,23 @@ export class ProblemService {
     language: LanguageType,
     options?: FindOneOptions<Problem>,
   ): Promise<Problem> {
-    const problem = await this.problemRepository.findOneOrFail({
+    const problem = await this.problemRepository.findOne({
       where: { pk, language },
       ...options,
     });
-    await problem.students;
+    if (problem) await problem.students;
     return problem;
   }
 
   async create(
     language: LanguageType,
-    data: CreateProblemDto,
+    pk: string,
+    data: UpdateProblemDto,
   ): Promise<Problem> {
-    const { pk, name, description, starter_code, solution } = data;
-
     const problem = this.problemRepository.create({
-      pk,
-      language,
-      name,
-      description,
-      starter_code,
-      solution,
+      ...data,
+      pk: pk,
+      language: language,
     });
 
     await this.problemRepository.save(problem);
@@ -46,19 +41,17 @@ export class ProblemService {
     return problem;
   }
 
-  async update(
+  async updateProblem(
     language: LanguageType,
     pk: string,
     data: UpdateProblemDto,
-  ): Promise<UpdateResult> {
-    const problem = await this.findByPk(pk, language);
-    const { name, description, starter_code, solution } = data;
-    return await this.problemRepository.update(problem.id, {
-      name,
-      description,
-      starter_code,
-      solution,
-    });
+  ): Promise<UpdateResult | Problem> {
+    let problem = await this.findByPk(pk, language);
+    if (!problem) {
+      problem = await this.create(language, pk, data);
+      return problem;
+    }
+    return await this.problemRepository.update(problem.id, data);
   }
 
   async delete(problem: Problem): Promise<Problem> {

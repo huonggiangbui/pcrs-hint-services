@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { configuration } from './config/configuration';
 import { HintController } from './controller/hint.controller';
@@ -12,11 +12,13 @@ import { Logger } from './entity/logger.entity';
 import { ProblemService } from './service/problem.service';
 import { StudentService } from './service/student.service';
 import { LoggingService } from './service/logging.service';
-import { OpenAiService } from './service/openai.service';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ormConfig } from 'ormconfig';
 import { Feedback } from './entity/feedback.entity';
+import { LoggingController } from './controller/logging.controller';
+import { FeedbackController } from './controller/feedback.controller';
+import { FeedbackService } from './service/feedback.service';
 
 @Module({
   imports: [
@@ -35,8 +37,14 @@ import { Feedback } from './entity/feedback.entity';
     HintService,
     StudentService,
     LoggingService,
-    OpenAiService,
+    FeedbackService,
   ],
-  controllers: [AppController, HintController, ProblemController],
+  controllers: [
+    AppController,
+    HintController,
+    ProblemController,
+    LoggingController,
+    FeedbackController,
+  ],
 })
 export class AppModule {}

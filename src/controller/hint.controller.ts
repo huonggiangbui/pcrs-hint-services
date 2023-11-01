@@ -1,20 +1,22 @@
-import { Body, Controller, Query, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Query,
+  Get,
+  Param,
+  Post,
+  Delete,
+  Put,
+} from '@nestjs/common';
 import { Hint } from 'src/entity/hint.entity';
 import { Student } from 'src/entity/student.entity';
-import { Logger } from 'src/entity/logger.entity';
 import { HintService } from 'src/service/hint.service';
-import { LoggingService } from 'src/service/logging.service';
-import { OpenAiService } from 'src/service/openai.service';
 import { ProblemService } from 'src/service/problem.service';
 import { StudentService } from 'src/service/student.service';
-import { HintAuthorType, HintType, LanguageType } from '../types';
-import { CreateLogRecordDto } from 'src/dto/logging';
+import { LanguageType } from '../types';
 import { randomize } from 'src/utils/randomize';
-
-enum Hook {
-  ON_SETUP = 'on-setup',
-  ON_SUBMIT = 'on-submit',
-}
+import { HintDto } from 'src/dto/hint';
+import { UpdateResult } from 'typeorm';
 
 @Controller()
 export class HintController {
@@ -22,40 +24,63 @@ export class HintController {
     private readonly hintService: HintService,
     private readonly problemService: ProblemService,
     private readonly studentService: StudentService,
-    private readonly loggingService: LoggingService,
   ) {}
 
-  @Get('config/:language/:pk')
-  async getConfig(
+  @Post('hints/:language/:pk')
+  async postHint(
     @Param() params: { language: LanguageType; pk: string },
-    @Query() query: { uid: string; hook: Hook },
-  ): Promise<Student> {
-    const { uid, hook } = query;
+    @Body() body: HintDto,
+  ): Promise<Hint> {
     const problem = await this.problemService.findByPk(
       params.pk,
       params.language,
     );
-    let student;
-    const students = (await problem.students).filter((s) => s.uid === uid);
-
-    if (!students || students.length === 0) {
-      const config = await this.studentService.handleExperiment();
-      student = await this.studentService.findOne({
-        uid,
-        ...config,
-      });
-      if (!student) {
-        student = await this.studentService.create({
-          uid,
-          ...config,
-        });
-      }
-      await this.studentService.updateProblemOfStudent(student, problem);
-    } else {
-      student = students[0];
+    if (!problem) {
+      throw new Error(
+        `Problem not found: ${params.pk}, language: ${params.language} when creating a hint.`,
+      );
     }
 
-    return student;
+    if (!body.hint || !body.type) {
+      throw new Error(
+        `Hint or type not found: ${body.hint}, ${body.type}. Cannot create a hint.`,
+      );
+    }
+
+    return await this.hintService.create(problem, body);
+  }
+
+  @Put('hints/:id')
+  async updateHint(
+    @Param('id') id: number,
+    @Body() body: HintDto,
+  ): Promise<UpdateResult> {
+    const hint = await this.hintService.findById(id);
+    if (!hint) {
+      throw new Error(`Hint not found: ${id} when updating.`);
+    }
+    return await this.hintService.update(id, body);
+  }
+
+  @Delete('hints/:id')
+  async deleteHint(@Param('id') id: number): Promise<Hint> {
+    const hint = await this.hintService.findById(id);
+    if (!hint) {
+      throw new Error(`Hint not found: ${id}. Cannot delete hint.`);
+    }
+    return await this.hintService.delete(hint);
+  }
+
+  @Delete('hints/:language/:pk')
+  async deleteAllHintsProblem(
+    @Param() params: { language: LanguageType; pk: string },
+  ): Promise<void> {
+    const problem = await this.problemService.findByPk(
+      params.pk,
+      params.language,
+    );
+    const hints = await problem.hints;
+    return await this.hintService.deleteAll(hints);
   }
 
   @Get('hints/:language/:pk')
@@ -63,52 +88,57 @@ export class HintController {
     @Param() params: { language: LanguageType; pk: string },
     @Query()
     query: {
-      submission: string;
       uid: string;
-      prevHint?: number;
+      currentHint?: string;
     },
   ): Promise<Hint> {
-    const { submission, uid, prevHint } = query;
     const problem = await this.problemService.findByPk(
       params.pk,
       params.language,
     );
 
-    const hints = await this.hintService.findAllInstructorHints(problem);
-
-    let hint = null;
-    if (hints.length > 0) {
-      hint = randomize(hints);
-    } else {
-      const context = `${problem.language} problem: ${problem.name}\n\n${
-        problem.description
-      }\n\n${
-        problem.starter_code
-          ? 'Starter code:\n' + problem.starter_code + '\n\n'
-          : ''
-      }'${problem.solution ? 'Solution:\n' + problem.solution + '\n\n' : ''}`;
-
-      const { hintContent, prompt, type } =
-        await this.hintService.generateAutomaticHint(
-          OpenAiService.getInstance().openai,
-          problem.language,
-          context,
-          submission,
-          prevHint,
-        );
-
-      hint = await this.hintService.create({
-        problem,
-        prompt,
-        hint: hintContent,
-        type,
-        author: HintAuthorType.OPENAI,
-      });
+    if (!problem) {
+      throw new Error(
+        `Problem not found: ${params.pk}, language: ${params.language}. Cannot get hint for student ${query.uid}.`,
+      );
     }
+
+    const { uid, currentHint } = query;
     const student = await this.studentService.filterStudent(
       await problem.students,
       uid,
     );
+
+    if (!student || student.condition.visibility === 'control') {
+      throw new Error(
+        `Student not found: ${uid} or student is in control group. Cannot get hint.`,
+      );
+    }
+
+    if (currentHint) {
+      const hint = await this.hintService.findById(parseInt(currentHint, 10));
+      if (hint.next) {
+        return await this.hintService.findById(hint.next);
+      }
+    }
+
+    let hints = await this.hintService.findHeadHints(problem);
+
+    if (problem.typeExperiment) {
+      if (problem.crossover) {
+        hints = hints.filter((hint) => hint.type !== student.condition.type);
+      } else {
+        hints = hints.filter((hint) => hint.type === student.condition.type);
+      }
+    }
+
+    if (hints.length === 0) {
+      throw new Error(
+        `No hint exist for problem: pk ${params.pk}, language: ${params.language}. Cannot get hint for student ${uid}.`,
+      );
+    }
+
+    const hint = randomize(hints);
     await this.hintService.updateStudentOfHint(hint, student);
 
     hint.feedback = (await hint.feedback).filter(
@@ -119,55 +149,39 @@ export class HintController {
     return hint;
   }
 
-  @Post('hints/:language/:pk')
-  async postHint(
+  @Get('config/:language/:pk')
+  async getConfig(
     @Param() params: { language: LanguageType; pk: string },
-    @Body() body: { hint: string; type: HintType; level: number },
-  ): Promise<Hint> {
-    const problem = await this.problemService.findByPk(
-      params.pk,
-      params.language,
-    );
-    return await this.hintService.create({
-      ...body,
-      problem,
-      author: HintAuthorType.INSTRUCTOR,
-    });
-  }
+    @Query() query: { uid: string },
+  ): Promise<Student> {
+    const { uid } = query;
+    const { language, pk } = params;
+    const problem = await this.problemService.findByPk(pk, language);
+    if (!problem) {
+      throw new Error(
+        `Problem not found: ${pk}, language: ${language}. Cannot perform experiment config for student ${uid}.`,
+      );
+    }
+    const students = (await problem.students).filter((s) => s.uid === uid);
+    let student: Student;
 
-  @Post('feedback/:id')
-  async sendFeedback(
-    @Param('id') id: number,
-    @Body() body: { uid: string; feedback: string },
-  ): Promise<{
-    message: string;
-    showTextFeedback?: boolean;
-  }> {
-    const hint = await this.hintService.findById(id);
-    const student = await this.studentService.filterStudent(
-      await hint.students,
-      body.uid,
-    );
-    return await this.hintService.saveFeedback(hint, student, body.feedback);
-  }
+    if (students && students.length > 0) {
+      student = students[0];
+    } else {
+      const condition = await this.studentService.handleExperiment();
+      student = await this.studentService.findOne({
+        uid,
+        condition,
+      });
+      if (!student) {
+        student = await this.studentService.create({
+          uid,
+          condition,
+        });
+      }
+      await this.studentService.updateProblemOfStudent(student, problem);
+    }
 
-  @Post('logging/:id')
-  async logActivity(
-    @Param('id') id: number,
-    @Body() body: CreateLogRecordDto,
-  ): Promise<Logger> {
-    const hint = await this.hintService.findById(id);
-    const student = await this.studentService.filterStudent(
-      await hint.students,
-      body.uid,
-    );
-    const logger = await this.loggingService.create({
-      action: body.action,
-      submission: body.submission,
-      student,
-      hint,
-    });
-    delete logger['__hint__'];
-    return logger;
+    return student;
   }
 }

@@ -1,15 +1,10 @@
 export interface IHint {
   id: number;
   type: HintType;
-  prompt?: string;
-  author: HintAuthorType;
   hint: string;
-  config: IUIConfig;
-}
-
-export enum HintAuthorType {
-  INSTRUCTOR = 'instructor',
-  OPENAI = 'openai',
+  config: IConfig;
+  prev?: number;
+  next?: number;
 }
 
 export enum HintType {
@@ -17,27 +12,27 @@ export enum HintType {
   CODE = 'code',
 }
 
-export interface IUIConfig {
-  title: string;
-  description: string;
+export interface IConfig {
   level?: DetailLevelType;
-  more?: boolean;
 }
 
 export enum DetailLevelType {
-  BOTTOM_OUT = 1,
-  HIDDEN = 2,
+  BOTTOM_OUT = 'bottom_out',
+  HIDDEN = 'hidden',
 }
 
 export interface IStudent {
   id: number;
   uid: string;
-  condition: ConditionType;
-  btnText?: string;
-  btnColor?: string;
+  condition: IConditionType;
 }
 
-export enum ConditionType {
+export interface IConditionType {
+  visibility: VisibilityConditionType;
+  type: HintType;
+}
+
+export enum VisibilityConditionType {
   CONTROL = 'control',
   EXPERIMENT = 'experiment',
 }
@@ -50,27 +45,22 @@ export interface IFeedback {
 export interface IProblem {
   id: number;
   pk: string;
-  name: string;
   language: LanguageType;
-  description: string;
+  typeExperiment?: boolean;
+  crossover?: boolean;
+  name?: string;
+  description?: string;
   solution?: string;
   starter_code?: string;
 }
 
 export enum LanguageType {
-  SQL = 'sql',
+  PYTHON = 'python',
 }
 
 export interface ILogger {
   id: number;
   timestamp: Date;
-  action: ActionType;
   submission: string;
-}
-
-export enum ActionType {
-  REQUEST = 'request',
-  FOLLOW = 'follow-up',
-  CLOSE = 'close',
-  EXPAND = 'expand',
+  revealed?: boolean;
 }

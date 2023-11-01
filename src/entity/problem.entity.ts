@@ -23,15 +23,21 @@ export class Problem implements IProblem {
   @Column({
     type: 'enum',
     enum: LanguageType,
-    default: LanguageType.SQL,
+    default: LanguageType.PYTHON,
   })
   language: LanguageType;
 
-  @Column()
-  name: string;
+  @Column({ nullable: true })
+  typeExperiment?: boolean;
 
-  @Column()
-  description: string;
+  @Column({ nullable: true })
+  crossover?: boolean;
+
+  @Column({ nullable: true })
+  name?: string;
+
+  @Column({ nullable: true })
+  description?: string;
 
   @Column({ nullable: true })
   solution?: string;

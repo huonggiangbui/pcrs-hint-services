@@ -19,7 +19,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "makemigrations": "ts-node ./node_modules/typeorm/cli migration:generate src/migrations/migrate -d ./data-source.ts",
+    "makemigration": "ts-node ./node_modules/typeorm/cli migration:generate src/migrations/migrate -d ./data-source.ts",
     "migrate": "ts-node ./node_modules/typeorm/cli migration:run -d dist/data-source.js",
     "revertmigration": "ts-node ./node_modules/typeorm/cli migration:revert -d dist/data-source.js"
   },
@@ -29,6 +29,9 @@
     "@nestjs/core": "^8.0.0",
     "@nestjs/platform-express": "^8.0.0",
     "@nestjs/typeorm": "^9.0.1",
+    "@sentry/node": "^7.77.0",
+    "@sentry/profiling-node": "^1.2.5",
+    "@sentry/tracing": "^7.77.0",
     "joi": "^17.7.0",
     "openai": "^3.1.0",
     "pg": "^8.8.0",
@@ -40,7 +43,7 @@
   "devDependencies": {
     "@nestjs/cli": "^8.0.0",
     "@nestjs/schematics": "^8.0.0",
-    "@nestjs/testing": "^8.0.0",
+    "@nestjs/testing": "^8.4.7",
     "@types/express": "^4.17.13",
     "@types/jest": "^27.0.1",
     "@types/node": "^16.0.0",
