@@ -115,34 +115,36 @@ export class HintController {
       );
     }
 
+    let hint;
+    let curr_hint;
+
     if (currentHint) {
-      const hint = await this.hintService.findById(parseInt(currentHint, 10));
-      if (hint.next) {
-        return await this.hintService.findById(hint.next);
+      curr_hint = await this.hintService.findById(parseInt(currentHint, 10));
+    }
+    if (curr_hint && curr_hint.next) {
+      hint = await this.hintService.findById(curr_hint.next);
+    } else {
+      let hints = await this.hintService.findHeadHints(problem);
+
+      if (problem.typeExperiment) {
+        if (problem.crossover) {
+          hints = hints.filter((hint) => hint.type !== student.condition.type);
+        } else {
+          hints = hints.filter((hint) => hint.type === student.condition.type);
+        }
       }
-    }
 
-    let hints = await this.hintService.findHeadHints(problem);
-
-    if (problem.typeExperiment) {
-      if (problem.crossover) {
-        hints = hints.filter((hint) => hint.type !== student.condition.type);
-      } else {
-        hints = hints.filter((hint) => hint.type === student.condition.type);
+      if (hints.length === 0) {
+        throw new Error(
+          `No hint exist for problem: pk ${params.pk}, language: ${params.language}. Cannot get hint for student ${uid}.`,
+        );
       }
+      hint = randomize(hints);
+      await this.hintService.updateStudentOfHint(hint, student);
     }
-
-    if (hints.length === 0) {
-      throw new Error(
-        `No hint exist for problem: pk ${params.pk}, language: ${params.language}. Cannot get hint for student ${uid}.`,
-      );
-    }
-
-    const hint = randomize(hints);
-    await this.hintService.updateStudentOfHint(hint, student);
 
     hint.feedback = (await hint.feedback).filter(
-      async (feedback) => (await feedback).student === student && (await feedback).hint === hint,
+      async (feedback) => (await feedback).student === student,
     );
     delete hint['__students__'];
 

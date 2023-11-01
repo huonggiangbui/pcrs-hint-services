@@ -19,10 +19,7 @@ export class FeedbackController {
     message: string;
   }> {
     const hint = await this.hintService.findById(id);
-    const student = await this.studentService.filterStudent(
-      await hint.students,
-      body.uid,
-    );
+    const student = await this.studentService.findByUid(body.uid);
 
     if (!student || !hint) {
       return {

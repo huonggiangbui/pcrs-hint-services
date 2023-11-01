@@ -23,6 +23,12 @@ export class StudentService {
     });
   }
 
+  async findByUid(uid: string): Promise<Student> {
+    return await this.studentRepository.findOne({
+      where: { uid },
+    });
+  }
+
   async filterStudent(students: Student[], uid: string): Promise<Student> {
     students = students.filter((s) => s.uid === uid);
     if (!students || students.length === 0) {

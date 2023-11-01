@@ -19,10 +19,7 @@ export class LoggingController {
     @Body() body: CreateLogRecordDto,
   ): Promise<CustomLogEntity> {
     const hint = await this.hintService.findById(id);
-    const student = await this.studentService.filterStudent(
-      await hint.students,
-      body.uid,
-    );
+    const student = await this.studentService.findByUid(body.uid);
     if (!student || !hint) {
       throw new Error(
         `Student with id ${body.uid} or hint with id ${id} not found. Cannot log activity.`,
