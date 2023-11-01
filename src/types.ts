@@ -38,7 +38,7 @@ export enum VisibilityConditionType {
 }
 
 export interface IFeedback {
-  likert_feedbac?: number;
+  likert_feedback: number;
   text_feedback?: string;
 }
 
@@ -61,12 +61,5 @@ export enum LanguageType {
 export interface ILogger {
   id: number;
   timestamp: Date;
-  action: ActionType;
   submission: string;
-}
-
-export enum ActionType {
-  REQUEST = 'request',
-  CLOSE = 'close',
-  EXPAND = 'expand',
 }

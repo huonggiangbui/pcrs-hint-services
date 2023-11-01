@@ -26,15 +26,14 @@ export class FeedbackService {
 
     if (feedback_all && feedback_all.length !== 0) {
       feedback_entity = feedback_all[0];
-    } else {
+      feedback_entity.text_feedback = feedback;
+    } else if (this.isNumericFeedback(feedback)) {
       feedback_entity = await this.feedbackRepository.create();
       feedback_entity.student = Promise.resolve(student);
       feedback_entity.hint = Promise.resolve(hint);
-    }
-    if (await this.isNumericFeedback(feedback)) {
       feedback_entity.likert_feedback = parseInt(feedback);
     } else {
-      feedback_entity.text_feedback = feedback;
+      throw new BadRequestException('Invalid feedback');
     }
 
     await this.feedbackRepository.save(feedback_entity);

@@ -30,12 +30,11 @@ export class LoggingController {
       return null;
     }
 
-    const logger = await this.loggingService.create({
-      action: body.action,
-      submission: body.submission,
-      student,
+    const logger = await this.loggingService.create(
+      body.submission,
       hint,
-    });
+      student,
+    );
     delete logger['__hint__'];
     return logger;
   }

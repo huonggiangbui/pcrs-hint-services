@@ -5,7 +5,7 @@ import {
   CreateDateColumn,
   ManyToOne,
 } from 'typeorm';
-import { ILogger, ActionType } from '../types';
+import { ILogger } from '../types';
 import { Hint } from './hint.entity';
 import { Student } from './student.entity';
 
@@ -16,12 +16,6 @@ export class Logger implements ILogger {
 
   @CreateDateColumn()
   timestamp: Date;
-
-  @Column({
-    type: 'enum',
-    enum: ActionType,
-  })
-  action: ActionType;
 
   @Column()
   submission: string;
