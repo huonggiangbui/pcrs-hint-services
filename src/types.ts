@@ -62,4 +62,5 @@ export interface ILogger {
   id: number;
   timestamp: Date;
   submission: string;
+  revealed?: boolean;
 }

@@ -20,6 +20,9 @@ export class Logger implements ILogger {
   @Column()
   submission: string;
 
+  @Column({ nullable: true })
+  revealed?: boolean;
+
   @ManyToOne(() => Hint, (h) => h.logs, { onDelete: 'CASCADE', lazy: true })
   hint: Promise<Hint>;
 
