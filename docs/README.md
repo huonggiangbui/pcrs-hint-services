@@ -14,9 +14,9 @@ Query Params:
 1. Params
 **Required**
 - `pk`: problem id
-- `typeExperiment`: whether the problem experiments between code and text hint type or not
 
 **Optional**
+- `typeExperiment`: whether the problem experiments between code and text hint type or not
 - `crossover`: whether there is a crossover for participants between code and text hint type or not
 - `name`: problem name
 - `description`: problem description
