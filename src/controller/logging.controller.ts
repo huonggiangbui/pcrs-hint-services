@@ -1,4 +1,4 @@
-import { Body, Controller, Logger, Param, Post } from '@nestjs/common';
+import { Body, Controller, Param, Post } from '@nestjs/common';
 import { CreateLogRecordDto } from 'src/dto/logging';
 import { Logger as CustomLogEntity } from 'src/entity/logger.entity';
 import { HintService } from 'src/service/hint.service';
@@ -24,10 +24,9 @@ export class LoggingController {
       body.uid,
     );
     if (!student || !hint) {
-      Logger.error(
-        `Student with id ${body.uid} or hint with id ${id} not found`,
+      throw new Error(
+        `Student with id ${body.uid} or hint with id ${id} not found. Cannot log activity.`,
       );
-      return null;
     }
 
     const logger = await this.loggingService.create({ ...body }, hint, student);

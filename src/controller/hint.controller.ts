@@ -6,7 +6,6 @@ import {
   Param,
   Post,
   Delete,
-  Logger,
   Put,
 } from '@nestjs/common';
 import { Hint } from 'src/entity/hint.entity';
@@ -36,18 +35,16 @@ export class HintController {
       params.pk,
       params.language,
     );
-    if (!this.problemService.findByPk(params.pk, params.language)) {
-      Logger.error(
-        `Problem not found: ${params.pk}, language: ${params.language}`,
+    if (!problem) {
+      throw new Error(
+        `Problem not found: ${params.pk}, language: ${params.language} when creating a hint.`,
       );
-      return null;
     }
 
     if (!body.hint || !body.type) {
-      Logger.error(
+      throw new Error(
         `Hint or type not found: ${body.hint}, ${body.type}. Cannot create a hint.`,
       );
-      return null;
     }
 
     return await this.hintService.create(problem, body);
@@ -60,8 +57,7 @@ export class HintController {
   ): Promise<UpdateResult> {
     const hint = await this.hintService.findById(id);
     if (!hint) {
-      Logger.error(`Hint not found: ${id}`);
-      return null;
+      throw new Error(`Hint not found: ${id} when updating.`);
     }
     return await this.hintService.update(id, body);
   }
@@ -70,8 +66,7 @@ export class HintController {
   async deleteHint(@Param('id') id: number): Promise<Hint> {
     const hint = await this.hintService.findById(id);
     if (!hint) {
-      Logger.error(`Hint not found: ${id}`);
-      return null;
+      throw new Error(`Hint not found: ${id}. Cannot delete hint.`);
     }
     return await this.hintService.delete(hint);
   }
@@ -103,10 +98,9 @@ export class HintController {
     );
 
     if (!problem) {
-      Logger.error(
-        `Problem not found: ${params.pk}, language: ${params.language}`,
+      throw new Error(
+        `Problem not found: ${params.pk}, language: ${params.language}. Cannot get hint for student ${query.uid}.`,
       );
-      return null;
     }
 
     const { uid, currentHint } = query;
@@ -116,10 +110,9 @@ export class HintController {
     );
 
     if (!student || student.condition.visibility === 'control') {
-      Logger.error(
+      throw new Error(
         `Student not found: ${uid} or student is in control group. Cannot get hint.`,
       );
-      return null;
     }
 
     if (currentHint) {
@@ -140,10 +133,9 @@ export class HintController {
     }
 
     if (hints.length === 0) {
-      Logger.error(
-        `No hint exist for problem: pk ${params.pk}, language: ${params.language}`,
+      throw new Error(
+        `No hint exist for problem: pk ${params.pk}, language: ${params.language}. Cannot get hint for student ${uid}.`,
       );
-      return null;
     }
 
     const hint = randomize(hints);
@@ -166,8 +158,9 @@ export class HintController {
     const { language, pk } = params;
     const problem = await this.problemService.findByPk(pk, language);
     if (!problem) {
-      Logger.error(`Problem not found: ${pk}, language: ${language}`);
-      return null;
+      throw new Error(
+        `Problem not found: ${pk}, language: ${language}. Cannot perform experiment config for student ${uid}.`,
+      );
     }
     const students = (await problem.students).filter((s) => s.uid === uid);
     let student: Student;
