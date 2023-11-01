@@ -167,6 +167,7 @@ export class HintController {
     const problem = await this.problemService.findByPk(pk, language);
     if (!problem) {
       Logger.error(`Problem not found: ${pk}, language: ${language}`);
+      return null;
     }
     const students = (await problem.students).filter((s) => s.uid === uid);
     let student: Student;
