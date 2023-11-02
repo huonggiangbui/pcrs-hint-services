@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Hint } from 'src/entity/hint.entity';
 import { Logger } from 'src/entity/logger.entity';
 import { Student } from 'src/entity/student.entity';
+import { ActionType } from 'src/types';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -13,18 +14,13 @@ export class LoggingService {
   ) {}
 
   async create(
-    body: { submission: string; revealed?: string },
+    body: { submission: string; action: ActionType },
     hint: Hint,
     student: Student,
   ): Promise<Logger> {
-    let revealed = null;
-    if (body.revealed) {
-      revealed = body.revealed === 'true';
-    }
     const logger = await this.loggingRepository.create({
       timestamp: new Date(),
-      submission: body.submission,
-      revealed: revealed,
+      ...body,
     });
     logger.hint = Promise.resolve(hint);
     logger.student = Promise.resolve(student);

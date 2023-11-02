@@ -5,7 +5,7 @@ import {
   CreateDateColumn,
   ManyToOne,
 } from 'typeorm';
-import { ILogger } from '../types';
+import { ActionType, ILogger } from '../types';
 import { Hint } from './hint.entity';
 import { Student } from './student.entity';
 
@@ -20,8 +20,12 @@ export class Logger implements ILogger {
   @Column()
   submission: string;
 
-  @Column({ nullable: true })
-  revealed?: boolean;
+  @Column({
+    type: 'enum',
+    enum: ActionType,
+    default: ActionType.REQUEST,
+  })
+  action: ActionType;
 
   @ManyToOne(() => Hint, (h) => h.logs, { onDelete: 'CASCADE', lazy: true })
   hint: Promise<Hint>;

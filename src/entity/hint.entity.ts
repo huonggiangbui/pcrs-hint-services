@@ -8,7 +8,6 @@ import {
   JoinTable,
 } from 'typeorm';
 import { IHint, HintType } from '../types';
-import { Config } from './Config';
 import { Student } from './student.entity';
 import { Problem } from './problem.entity';
 import { Logger } from './logger.entity';
@@ -28,9 +27,6 @@ export class Hint implements IHint {
     default: HintType.TEXT,
   })
   type: HintType;
-
-  @Column(() => Config)
-  config: Config;
 
   @Column({ nullable: true })
   prev?: number;

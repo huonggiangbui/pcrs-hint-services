@@ -2,7 +2,6 @@ export interface IHint {
   id: number;
   type: HintType;
   hint: string;
-  config: IConfig;
   prev?: number;
   next?: number;
 }
@@ -10,10 +9,6 @@ export interface IHint {
 export enum HintType {
   TEXT = 'text',
   CODE = 'code',
-}
-
-export interface IConfig {
-  level?: DetailLevelType;
 }
 
 export enum DetailLevelType {
@@ -62,5 +57,11 @@ export interface ILogger {
   id: number;
   timestamp: Date;
   submission: string;
-  revealed?: boolean;
+  action: ActionType;
+}
+
+export enum ActionType {
+  REQUEST = 'request',
+  REVEAL = 'reveal',
+  CLOSE = 'close',
 }

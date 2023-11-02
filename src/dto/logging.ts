@@ -1,5 +1,7 @@
+import { ActionType } from 'src/types';
+
 export class CreateLogRecordDto {
   uid: string;
   submission: string;
-  revealed?: string;
+  action: ActionType;
 }
