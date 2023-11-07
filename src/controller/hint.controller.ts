@@ -166,23 +166,13 @@ export class HintController {
         `Problem not found: ${pk}, language: ${language}. Cannot perform experiment config for student ${uid}.`,
       );
     }
-    const students = (await problem.students).filter((s) => s.uid === uid);
-    let student: Student;
-
-    if (students && students.length > 0) {
-      student = students[0];
-    } else {
+    let student = await this.studentService.findByUid(uid);
+    if (!student) {
       const condition = await this.studentService.handleExperiment();
-      student = await this.studentService.findOne({
+      student = await this.studentService.create({
         uid,
         condition,
       });
-      if (!student) {
-        student = await this.studentService.create({
-          uid,
-          condition,
-        });
-      }
       await this.studentService.updateProblemOfStudent(student, problem);
     }
 
