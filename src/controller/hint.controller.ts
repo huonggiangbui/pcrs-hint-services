@@ -7,6 +7,7 @@ import {
   Post,
   Delete,
   Put,
+  Logger,
 } from '@nestjs/common';
 import { Hint } from 'src/entity/hint.entity';
 import { Student } from 'src/entity/student.entity';
@@ -135,9 +136,10 @@ export class HintController {
       }
 
       if (hints.length === 0) {
-        throw new Error(
+        Logger.debug(
           `No hint exist for problem: pk ${params.pk}, language: ${params.language}. Cannot get hint for student ${uid}.`,
         );
+        return null;
       }
       hint = randomize(hints);
       await this.hintService.updateStudentOfHint(hint, student);
