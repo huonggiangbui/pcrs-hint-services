@@ -173,6 +173,8 @@ export class HintController {
         uid,
         condition,
       });
+    }
+    if (!(await problem.students).includes(student)) {
       await this.studentService.updateProblemOfStudent(student, problem);
     }
 
