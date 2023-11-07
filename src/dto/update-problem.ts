@@ -1,6 +1,6 @@
 export class UpdateProblemDto {
-  typeExperiment?: boolean;
-  crossover?: boolean;
+  typeExperiment?: string;
+  crossover?: string;
   name?: string;
   description?: string;
   solution?: string;

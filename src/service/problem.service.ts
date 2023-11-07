@@ -30,8 +30,9 @@ export class ProblemService {
     pk: string,
     data: UpdateProblemDto,
   ): Promise<Problem> {
+    const cleanedData = this.convertBooleanType(null, data);
     const problem = this.problemRepository.create({
-      ...data,
+      ...cleanedData,
       pk: pk,
       language: language,
     });
@@ -51,10 +52,30 @@ export class ProblemService {
       problem = await this.create(language, pk, data);
       return problem;
     }
-    return await this.problemRepository.update(problem.id, data);
+    const cleanData = this.convertBooleanType(problem, data);
+    return await this.problemRepository.update(problem.id, cleanData);
   }
 
   async delete(problem: Problem): Promise<Problem> {
     return await this.problemRepository.remove(problem);
+  }
+
+  convertBooleanType(
+    problem: Problem,
+    data: UpdateProblemDto,
+  ): {
+    typeExperiment: boolean;
+    crossover: boolean;
+    name?: string;
+    description?: string;
+    solution?: string;
+    starter_code?: string;
+  } {
+    const { typeExperiment, crossover, ...rest } = data;
+    let type = problem ? problem.typeExperiment : null;
+    if (typeExperiment) type = typeExperiment === 'true';
+    let cross = problem ? problem.crossover : null;
+    if (crossover) cross = crossover === 'true';
+    return { ...rest, typeExperiment: type, crossover: cross };
   }
 }
