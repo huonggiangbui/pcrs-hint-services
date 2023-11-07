@@ -1,0 +1,20 @@
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: prod
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: create env files
+        run: |
+          echo "${{ secrets.ENV }}" > .env;
+
+      - name: compose build
+        run: docker compose build
+
+      - name: compose up
+        run: docker compose up -d
